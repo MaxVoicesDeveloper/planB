@@ -16,12 +16,40 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#">Login</a></li>
-                <li><a href="#">Register</a></li>
+                <li><a href="#" class="log">Login</a></li>
+                <li><a href="#" class="reg">Register</a></li>
             </ul>
         </nav>
     </header>
     <div class="container main">
+        <div class="modal-window">
+            <div class="form-registration">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <span>Регистрация</span>
+                        <form action="">
+                        <input type="text" name="login" placeholder="Логин" id="">
+                        <input type="text" name="name" placeholder="Имя" id="">
+                        <input type="password" name="password" placeholder="Пароль" id="">
+                        <input type="password" name="password" placeholder="Подтвердите пароль" id="">
+                        </form>
+                        <button>Зарегестрироваться</button>
+
+                        <p>У вас уже есть аккаунт? <a href="#">Войти</a></p>
+                    </div>
+                    <div class="form-img">
+                        <img src="img/resources/registration.png" alt="Internet is not connection">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="info-img">
             <div class="img">
                 <img src="img/resources/main.png" alt="Internet not connection">
@@ -36,10 +64,12 @@
                 предприятия. Наш сервис предоставляет широкий набор
                 инструментов, которые помогут вам оптимизировать рабочий
                 процесс и повысить производительность вашей команды.</p>
-                <button>Поехали</button>
+                <button class="lets">Поехали</button>
             </div>
         </div>
     </div>
+
+    <script src="js/main.js"></script>
 </body>
 
 </html>
