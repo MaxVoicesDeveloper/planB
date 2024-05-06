@@ -48,6 +48,7 @@ nav ul{
     justify-content: center;
     align-items: center;
     gap: 250px;
+    
 }
 
 nav ul li{
@@ -212,7 +213,7 @@ header .logo span font{
     color: #600000;
 }
 
-.form-registration{
+.form-autentification{
     display: grid;
     grid-template-rows: 10% 90%;
     width: 920px;
@@ -309,4 +310,12 @@ header .logo span font{
 .open{
     opacity: 1;
     visibility: visible;
+}
+
+.formlog{ /* Это дополнительный класс для формы логина, так как именно на логине нужен минусовой трансофрм, а классы одинаковые*/
+    transform: translateX(-20px);
+}
+
+.logimg img{/* Это дополнительный класс для картинки формы логина, так как именно на логине нужен минусовой трансофрм, а классы одинаковые*/
+    width: 260px;
 }
