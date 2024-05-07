@@ -5,19 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 
 <body>
     <header>
         <div class="logo">
-            <img src="img/logo/png/Logo-PlanBV5.png" alt="Internet is not connection">
+            <img src="{{ url_for('static', filename='img/logo/png/Logo-PlanBV5.png') }}" alt="Internet is not connection">
             <span>Plan <font>B</font></span>
         </div>
         <nav>
             <ul>
-                <li><a href="#" class="log">Login</a></li>
-                <li><a href="#" class="reg">Register</a></li>
+                {% if session['loggedin'] %}
+    <p>Hello, {{ session['login'] }}!</p>
+    <a href="{{ url_for('logout') }}">Logout</a>
+{% else %}
+<li><a href="#" class="log">Login</a></li>
+<li><a href="#" class="reg">Register</a></li>
+{% endif %}
             </ul>
         </nav>
     </header>
@@ -34,18 +39,19 @@
                 <div class="form-elements">
                     <div class="form">
                         <span>Регистрация</span>
-                        <form action="">
-                        <input type="text" name="login" placeholder="Логин" id="">
-                        <input type="text" name="name" placeholder="Имя" id="">
-                        <input type="password" name="password" placeholder="Пароль" id="">
-                        <input type="password" name="password" placeholder="Подтвердите пароль" id="">
+                        <form action="/" method="post">
+                            <input type="hidden" name="action" value="register">
+                            <input type="text" name="name" placeholder="Имя" required>
+                            <input type="text" name="login" placeholder="Логин" required>
+                            <input type="password" name="password" placeholder="Пароль" required>
+                            <input type="email" name="email" placeholder="Email" required>
+                            <button type="submit">Зарегистрироваться</button>
                         </form>
-                        <button>Зарегестрироваться</button>
 
-                        <p>У вас уже есть аккаунт? <a href="#">Войти</a></p>
+                        <p>У вас уже есть аккаунт? <a href="#" class="alog">Войти</a></p>
                     </div>
                     <div class="form-img">
-                        <img src="img/resources/registration.png" alt="Internet is not connection">
+                        <img src="{{ url_for('static', filename='img/resources/registration.png') }}" alt="Internet is not connection">
                     </div>
                 </div>
             </div>
@@ -61,24 +67,25 @@
                 </div>
                 <div class="form-elements">
                     <div class="form-img logimg">
-                        <img src="img/resources/login.png" alt="Internet is not connection">
+                        <img src="{{ url_for('static', filename='img/resources/login.png') }}" alt="Internet is not connection">
                     </div>
                     <div class="form formlog">
                         <span>Авторизация</span>
-                        <form action="">
-                        <input type="text" name="login" placeholder="Логин" id="">
-                        <input type="password" name="password" placeholder="Пароль" id="">
+                        <form action="/" method="post">
+                            <input type="hidden" name="action" value="login">
+                            <input type="text" name="login" placeholder="Логин" required>
+                            <input type="password" name="password" placeholder="Пароль" required>
+                            <button type="submit">Войти</button>
                         </form>
-                        <button>Авторизоваться</button>
 
-                        <p>У вас уже есть аккаунт? <a href="#">Войти</a></p>
+                        <p>У вас ещё нет аккаунта? <a href="#" class="areg">Зарегестрироваться</a></p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="info-img">
             <div class="img">
-                <img src="img/resources/main.png" alt="Internet not connection">
+                <img src="{{ url_for('static', filename='img/resources/main.png') }}" alt="Internet not connection">
             </div>
             <div class="info">
                 <span>
@@ -89,13 +96,14 @@
                 эффективного планирования работы сотрудников
                 предприятия. Наш сервис предоставляет широкий набор
                 инструментов, которые помогут вам оптимизировать рабочий
-                процесс и повысить производительность вашей команды.</p>
+                процесс и повысить производительность вашей команды.
+            </p>
                 <button class="lets">Поехали</button>
             </div>
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>
