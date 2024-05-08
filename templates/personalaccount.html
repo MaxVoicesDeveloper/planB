@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan<font>B</font></span>
+            </div>
+            <div class="global-set">
+
+            </div>
+            <div class="account">
+                {% if session['loggedin'] %}
+    <p>Hello, {{ session['login'] }}!</p>
+    <a href="{{ url_for('logout') }}">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="task">
+            <img src="" alt="">
+            <span>У вас пока нет активных задач</span>
+            <button>Добавить</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

@@ -25,20 +25,22 @@ def home():
                 flash('Please fill out all fields.')
             else:
                 cur = mysql.connection.cursor()
-                # Проверка наличия пользователя с таким логином
                 cur.execute("SELECT * FROM users WHERE login = %s", [login])
                 user = cur.fetchone()
                 if user:
-                    flash('Login already exists. Please choose a different one.')
+                    flash('Registration successful.')
+                    session['loggedin'] = True
+                    session['id'] = cur.lastrowid
+                    session['login'] = login
+                    return redirect(url_for('personal_account')) # Перенаправление на personal_account
                 else:
                     cur.execute("INSERT INTO users (name, login, password, email) VALUES (%s, %s, %s, %s)", (name, login, password, email))
                     mysql.connection.commit()
                     flash('Registration successful.')
-                    # Автоматический вход в систему после регистрации
                     session['loggedin'] = True
-                    session['id'] = cur.lastrowid # Используйте ID последней вставленной строки
+                    session['id'] = cur.lastrowid
                     session['login'] = login
-                    return redirect(url_for('home'))
+                    return redirect(url_for('personal_account')) # Перенаправление на personal_account
         elif action == 'login':
             login = request.form.get('login')
             password = request.form.get('password')
@@ -50,10 +52,16 @@ def home():
                 session['id'] = user[0]
                 session['login'] = user[1]
                 flash('Login successful.')
-                return redirect(url_for('home'))
-            else:
-                flash('Login unsuccessful. Please check your login details.')
+                return redirect(url_for('personal_account')) # Перенаправление на personal_account
     return render_template('index.html')
+
+@app.route('/personalaccount')
+def personal_account():
+    if 'loggedin' in session:
+        return render_template('personalaccount.html')
+    else:
+        flash('You must be logged in to view that page.')
+        return redirect(url_for('home'))
 
 @app.route('/logout')
 def logout():
