@@ -28,7 +28,11 @@ html, body{
     height: 100vh;
     background: #2C2C2C;
     display: grid;
-    grid-template-rows: 15% 70% 15%;
+    grid-template-rows: 10% 80% 10%;
+}
+
+.logo, .account{
+    background: #222222;
 }
 
 .task{
@@ -36,4 +40,74 @@ html, body{
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+}
+
+.task img{
+    width: 150px;
+    height: 145px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.task span{
+    font-size: 50px;
+    color: #7D7D7D;
+}
+
+.task button{
+    width: 230px;
+    height: 40px;
+    background: #2A2A2A;
+    color: #ffffff;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    transition: 0.5s ease;
+}
+
+.task button:hover{
+    cursor: pointer;
+    background: #1b1b1b;
+}
+
+.logo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo span{
+    font-size: 50px;
+}
+
+.logo span font{
+    color: #600000;
+}
+
+.account{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.account_info{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.setting_account{
+    width: 20%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+
+.setting_account img, .setting_account a{
+    width: 45px;
+    height: 45px;
 }

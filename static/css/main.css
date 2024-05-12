@@ -263,12 +263,12 @@ header .logo span font{
 }
 
 .form form input{
-    width: 298px;
-    height: 34px;
+    width: 293px;
+    height: 29px;
     background: #4E4E4E;
     border-radius: 10px;
     border: none;
-    padding: 2px;
+    padding: 10px;
 }
 
 .form form input::placeholder{
