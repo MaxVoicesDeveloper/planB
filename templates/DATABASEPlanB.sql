@@ -6,43 +6,45 @@ CREATE DATABASE PlanBApp;
 
 USE PlanBApp;
 
--- Изменяю именование объектов, пишу с приставками (таблицы - 't_', индексы - 'idx_', представления - 'v_')
+-- Изменяю именование объектов, пишу с приставками (таблицы - 't_', индексы - 'idx_', представления - 'v_', внешние ключи - 'fk_')
 -- Таблица пользователей
-CREATE TABLE t_users (
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-    login VARCHAR(64) NOT NULL,
-    password VARCHAR(50) NOT NULL,
-    email VARCHAR(128) NOT NULL,
-    last_name VARCHAR(75) NOT NULL,
-    first_name VARCHAR(75) NOT NULL,
-    second_name VARCHAR(75),
-    account_type VARCHAR(25) NOT NULL
+CREATE TABLE `t_users` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `login` varchar(64) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `last_name` varchar(75) NOT NULL,
+  `first_name` varchar(75) NOT NULL,
+  `second_name` varchar(75) DEFAULT NULL,
+  `account_type` varchar(25) NOT NULL DEFAULT 'employee',
+  PRIMARY KEY (`id`)
 );
+
 
 -- Таблица задач
-CREATE TABLE t_tasks (
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(100) NOT NULL,
-    desc_text TEXT,
-    date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    date_deadline TIMESTAMP,
-    id_executor BIGINT,
-    id_status BIGINT NOT NULL
+CREATE TABLE `t_tasks` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
+  `desc_text` text,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_deadline` timestamp NULL DEFAULT NULL,
+  `id_executor` bigint DEFAULT NULL,
+  `id_status` bigint NOT NULL,
+  `id_fk` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_id_executor_idx` (`id_executor`),
+  KEY `fk_id_status_idx` (`id_status`),
+  CONSTRAINT `fk_id_executor` FOREIGN KEY (`id_executor`) REFERENCES `t_users` (`id`),
+  CONSTRAINT `fk_id_status` FOREIGN KEY (`id_status`) REFERENCES `t_task_statuses` (`id`)
 );
+
 
 -- Таблица статусов задачи (справочник)
-CREATE TABLE t_task_statuses (
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    status_code VARCHAR(50) NOT NULL,
-    status_name VARCHAR(100) NOT NULL
-);
-
--- Таблица ролей пользователь (справочник)
-CREATE TABLE t_user_roles (
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    role_code VARCHAR(50) NOT NULL,
-    role_name VARCHAR(100) NOT NULL
+CREATE TABLE `t_task_statuses` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `status_code` varchar(50) NOT NULL,
+  `status_name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
 );
 
 -- Справочная информация
