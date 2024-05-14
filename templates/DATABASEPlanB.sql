@@ -17,7 +17,7 @@ CREATE TABLE t_users (
     last_name VARCHAR(75) NOT NULL,
     first_name VARCHAR(75) NOT NULL,
     second_name VARCHAR(75),
-    id_user_role BIGINT NOT NULL
+    account_type VARCHAR(25) NOT NULL
 );
 
 -- Таблица задач
@@ -50,7 +50,3 @@ INSERT INTO t_task_statuses(status_code, status_name)
 VALUES ('NEW', 'Открыта'),
        ('CLOSED', 'Выполнена'),
        ('DELETED', 'Удалена');
-
-INSERT INTO t_user_roles(role_code, role_name)
-VALUES ('ADMIN', 'Администратор'),
-       ('EXECUTOR', 'Исполнитель');
