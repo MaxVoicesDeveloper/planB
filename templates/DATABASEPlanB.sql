@@ -44,3 +44,13 @@ CREATE TABLE t_user_roles (
     role_code VARCHAR(50) NOT NULL,
     role_name VARCHAR(100) NOT NULL
 );
+
+-- Справочная информация
+INSERT INTO t_task_statuses(status_code, status_name)
+VALUES ('NEW', 'Открыта'),
+       ('CLOSED', 'Выполнена'),
+       ('DELETED', 'Удалена');
+
+INSERT INTO t_user_roles(role_code, role_name)
+VALUES ('ADMIN', 'Администратор'),
+       ('EXECUTOR', 'Исполнитель');
