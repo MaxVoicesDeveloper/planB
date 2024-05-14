@@ -8,7 +8,7 @@ app.secret_key = 'gggforforgg' # Замените 'your_secret_key' на ваш 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'Maxonbd15)'
-app.config['MYSQL_DB'] = 'PlanB'
+app.config['MYSQL_DB'] = 'PlanBApp'
 
 mysql = MySQL(app)
 
