@@ -25,7 +25,7 @@ def home():
                 flash('Please fill out all fields.')
             else:
                 cur = mysql.connection.cursor()
-                cur.execute("SELECT * FROM users WHERE login = %s", [login])
+                cur.execute("SELECT * FROM t_users WHERE login = %s", [login])
                 user = cur.fetchone()
                 if user:
                     flash('Registration successful.')
@@ -34,7 +34,17 @@ def home():
                     session['login'] = login
                     return redirect(url_for('personal_account')) # Перенаправление на personal_account
                 else:
-                    cur.execute("INSERT INTO users (name, login, password, email) VALUES (%s, %s, %s, %s)", (name, login, password, email))
+                    # Маппинг ФИО (можно без отчества)
+                    last_name = ''
+                    first_name = ''
+                    try:
+                        last_name, first_name, second_name = name.split(' ')
+                    except ValueError:
+                        last_name, first_name = name.split(' ')
+                        second_name = ''
+
+                    cur.execute("INSERT INTO t_users (login, password, email, last_name, first_name, second_name) VALUES (%s, %s, %s, %s, %s, %s)", 
+                                (login, password, email, last_name, first_name, second_name))
                     mysql.connection.commit()
                     flash('Registration successful.')
                     session['loggedin'] = True
@@ -45,7 +55,7 @@ def home():
             login = request.form.get('login')
             password = request.form.get('password')
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM users WHERE login = %s AND password = %s", (login, password))
+            cur.execute("SELECT * FROM t_users WHERE login = %s AND password = %s", (login, password))
             user = cur.fetchone()
             if user:
                 session['loggedin'] = True
