@@ -1,10 +1,14 @@
 -- Перед запуском удаляем старую БД и создаем новую
 
 DROP DATABASE PlanBApp;
-
 CREATE DATABASE PlanBApp;
 
 USE PlanBApp;
+
+-- Создание пользователя приложения
+CREATE USER 'app_user' IDENTIFIED BY 'app_user';
+GRANT ALL PRIVILEGES ON *.* TO 'app_user' WITH GRANT OPTION;
+FLUSH PRIVILEGES; 
 
 -- Изменяю именование объектов, пишу с приставками (таблицы - 't_', индексы - 'idx_', представления - 'v_', внешние ключи - 'fk_')
 -- Таблица пользователей
