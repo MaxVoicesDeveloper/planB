@@ -6,23 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script>
+        function registerUser() {
+            var form = document.getElementById('registerForm');
+            var formData = new FormData(form);
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect_url; // Перенаправление на URL, указанный в ответе
+                    } else {
+                        showAlert(data.message, 'registerFormError');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+
+        function loginUser() {
+            var form = document.getElementById('loginForm');
+            var formData = new FormData(form);
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect_url; // Перенаправление на URL, указанный в ответе
+                    } else {
+                        showAlert(data.message, 'loginFormError');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+
+        function showAlert(message, formId) {
+            var errorMessage = document.querySelector(`#${formId}.error-message`);
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(function () {
+                errorMessage.classList.remove('show');
+            }, 3000); // Скрываем сообщение через 3 секунды
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 </head>
 
 <body>
     <header>
         <div class="logo">
-            <img src="{{ url_for('static', filename='img/logo/png/Logo-PlanBV5.png') }}" alt="Internet is not connection">
+            <img src="{{ url_for('static', filename='img/logo/png/Logo-PlanBV5.png') }}"
+                alt="Internet is not connection">
             <span>Plan <font>B</font></span>
         </div>
         <nav>
             <ul>
                 {% if session['loggedin'] %}
-    <p>Hello, {{ session['login'] }}!</p>
-    <a href="{{ url_for('logout') }}">Logout</a>
-{% else %}
-<li><a href="#" class="log">Login</a></li>
-<li><a href="#" class="reg">Register</a></li>
-{% endif %}
+                <p>Hello, {{ session['login'] }}!</p>
+                <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                <li><a href="#" class="log">Login</a></li>
+                <li><a href="#" class="reg">Register</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
@@ -39,19 +87,32 @@
                 <div class="form-elements">
                     <div class="form">
                         <span>Регистрация</span>
-                        <form action="/" method="post">
+                        <form id="registerForm" action="/" method="post">
                             <input type="hidden" name="action" value="register">
                             <input type="text" name="name" placeholder="Имя" required>
                             <input type="text" name="login" placeholder="Логин" required>
                             <input type="password" name="password" placeholder="Пароль" required>
                             <input type="email" name="email" placeholder="Email" required>
-                            <button type="submit">Зарегистрироваться</button>
+                            <div class="account_type">
+                                <div class="employer">
+                                    <input type="radio" id="employer" name="account_type" value="employer">
+                                    <label for="employer">Работодатель</label>
+                                </div>
+                                <div class="employee">
+                                    <input type="radio" id="employee" name="account_type" value="employee">
+                                    <label for="employee">Работник</label>
+                                </div>
+                            </div>
+                            <button type="button" onclick="registerUser()">Зарегистрироваться</button>
                         </form>
+
 
                         <p>У вас уже есть аккаунт? <a href="#" class="alog">Войти</a></p>
                     </div>
                     <div class="form-img">
-                        <img src="{{ url_for('static', filename='img/resources/registration.png') }}" alt="Internet is not connection">
+                        <div class="error-message" id="registerFormError"></div>
+                        <img src="{{ url_for('static', filename='img/resources/registration.png') }}"
+                            alt="Internet is not connection">
                     </div>
                 </div>
             </div>
@@ -67,15 +128,18 @@
                 </div>
                 <div class="form-elements">
                     <div class="form-img logimg">
-                        <img src="{{ url_for('static', filename='img/resources/login.png') }}" alt="Internet is not connection">
+                        <div class="error-message" id="loginFormError"></div>
+                        <img src="{{ url_for('static', filename='img/resources/login.png') }}"
+                            alt="Internet is not connection">
                     </div>
                     <div class="form formlog">
+                        <div class="error-message"></div>
                         <span>Авторизация</span>
-                        <form action="/" method="post">
+                        <form id="loginForm" action="/" method="post">
                             <input type="hidden" name="action" value="login">
                             <input type="text" name="login" placeholder="Логин" required>
                             <input type="password" name="password" placeholder="Пароль" required>
-                            <button type="submit">Войти</button>
+                            <button type="button" onclick="loginUser()">Войти</button>
                         </form>
 
                         <p>У вас ещё нет аккаунта? <a href="#" class="areg">Зарегестрироваться</a></p>
@@ -92,17 +156,31 @@
                     <p>Добро пожаловать в</p><b>Plan <font>B</font></b>
                 </span>
                 <p>
-                <b>Plan <font>B</font></b> - уникальный веб-сайт, предназначенный для
-                эффективного планирования работы сотрудников
-                предприятия. Наш сервис предоставляет широкий набор
-                инструментов, которые помогут вам оптимизировать рабочий
-                процесс и повысить производительность вашей команды.
-            </p>
+                    <b>Plan <font>B</font></b> - уникальный веб-сайт, предназначенный для
+                    эффективного планирования работы сотрудников
+                    предприятия. Наш сервис предоставляет широкий набор
+                    инструментов, которые помогут вам оптимизировать рабочий
+                    процесс и повысить производительность вашей команды.
+                </p>
                 <button class="lets">Поехали</button>
             </div>
         </div>
     </div>
 
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <script>
+        showAlert('{{ message }}', 'registerForm');
+    </script>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 

@@ -20,9 +20,10 @@
             <div class="account">
                 <div class="account_info">
                     <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
-                {% if session['loggedin'] %}
-    <p>{{ session['login'] }}</p>
-                {% endif %}
+                    {% if session['loggedin'] %}
+                    <p>{{ session['login'] }}</p>
+                    <p>Тип аккаунта: {{ translate_account_type(session['account_type']) }}</p>
+                    {% endif %}
                 </div>
                 <div class="setting_account">
                     <a><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></a>

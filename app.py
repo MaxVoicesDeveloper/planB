@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, url_for, redirect, flash
+from flask import Flask, render_template, request, session, url_for, redirect, flash, jsonify
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -21,26 +21,19 @@ def home():
             login = request.form.get('login')
             password = request.form.get('password')
             email = request.form.get('email')
-            if not name or not login or not password or not email:
-                flash('Please fill out all fields.')
-            else:
-                cur = mysql.connection.cursor()
-                cur.execute("SELECT * FROM users WHERE login = %s", [login])
-                user = cur.fetchone()
-                if user:
-                    flash('Registration successful.')
-                    session['loggedin'] = True
-                    session['id'] = cur.lastrowid
-                    session['login'] = login
-                    return redirect(url_for('personal_account')) # Перенаправление на personal_account
-                else:
-                    cur.execute("INSERT INTO users (name, login, password, email) VALUES (%s, %s, %s, %s)", (name, login, password, email))
-                    mysql.connection.commit()
-                    flash('Registration successful.')
-                    session['loggedin'] = True
-                    session['id'] = cur.lastrowid
-                    session['login'] = login
-                    return redirect(url_for('personal_account')) # Перенаправление на personal_account
+            account_type = request.form.get('account_type')
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * FROM users WHERE login = %s OR email = %s", (login, email))
+            if cur.fetchone():
+                return jsonify(success=False, message='Логин или почта уже существуют')
+            cur.execute("INSERT INTO users (name, login, password, email, account_type) VALUES (%s, %s, %s, %s, %s)", (name, login, password, email, account_type))
+            mysql.connection.commit()
+            flash('Registration successful.')
+            session['loggedin'] = True
+            session['id'] = cur.lastrowid
+            session['login'] = login
+            session['account_type'] = account_type  # Сохраняем тип аккаунта в сессии
+            return jsonify(success=True, message='Регистрация успешна', redirect_url=url_for('personal_account'))
         elif action == 'login':
             login = request.form.get('login')
             password = request.form.get('password')
@@ -51,14 +44,33 @@ def home():
                 session['loggedin'] = True
                 session['id'] = user[0]
                 session['login'] = user[1]
+                session['account_type'] = user[4]  # Загружаем тип аккаунта из базы данных
                 flash('Login successful.')
-                return redirect(url_for('personal_account')) # Перенаправление на personal_account
-    return render_template('index.html')
+                return jsonify(success=True, message='Вход в систему успешен', redirect_url=url_for('personal_account'))
+            else:
+                flash('Login unsuccessful.')
+                return jsonify(success=False, message='Неверный логин или пароль')
+        else:
+            return render_template('index.html')
+    else:
+        return render_template('index.html')
+
+def translate_account_type(account_type):
+    if account_type == 'employer':
+        return 'Работодатель'
+    elif account_type == 'employee':
+        return 'Работник'
+    else:
+        return 'Неизвестный тип аккаунта'
 
 @app.route('/personalaccount')
 def personal_account():
     if 'loggedin' in session:
-        return render_template('personalaccount.html')
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT account_type FROM users WHERE login = %s", (session['login'],))
+        account_type = cur.fetchone()[0]
+        session['account_type'] = account_type  # Сохраняем тип аккаунта в сессии
+        return render_template('personalaccount.html', translate_account_type=translate_account_type)  # Передаем функцию в шаблон
     else:
         flash('You must be logged in to view that page.')
         return redirect(url_for('home'))
