@@ -6,52 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <script>
-        function registerUser() {
-            var form = document.getElementById('registerForm');
-            var formData = new FormData(form);
-            fetch('/', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect_url; // Перенаправление на URL, указанный в ответе
-                    } else {
-                        showAlert(data.message, 'registerFormError');
-                    }
-                })
-                .catch(error => console.error('Ошибка:', error));
-        }
-
-        function loginUser() {
-            var form = document.getElementById('loginForm');
-            var formData = new FormData(form);
-            fetch('/', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect_url; // Перенаправление на URL, указанный в ответе
-                    } else {
-                        showAlert(data.message, 'loginFormError');
-                    }
-                })
-                .catch(error => console.error('Ошибка:', error));
-        }
-
-        function showAlert(message, formId) {
-            var errorMessage = document.querySelector(`#${formId}.error-message`);
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            setTimeout(function () {
-                errorMessage.classList.remove('show');
-            }, 3000); // Скрываем сообщение через 3 секунды
-        }
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 </head>
 
@@ -89,7 +43,7 @@
                         <span>Регистрация</span>
                         <form id="registerForm" action="/register" method="post">
                             <input type="hidden" name="action" value="register">
-                            <input type="text" name="name" placeholder="Имя" required>
+                            <input type="text" name="name" placeholder="ФИО" required>
                             <input type="text" name="login" placeholder="Логин" required>
                             <input type="password" name="password" placeholder="Пароль" required>
                             <input type="email" name="email" placeholder="Email" required>

@@ -10,6 +10,37 @@
 
 <body>
     <div class="container">
+
+
+
+        <div class="modal-window setting">
+            <div class="form-setting">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close-setting">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                                <label for="profilePictureInput">
+                                    <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
+                                    <span>Change Image</span>
+                                </label>
+                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
+                                <input type="text" name="name" placeholder="Имя" required>
+                                <button type="submit">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
         <div class="left-menu">
             <div class="logo">
                 <span>Plan <font>B</font></span>
@@ -28,18 +59,18 @@
                     </div>
                 </div>
                 <div class="setting_account">
-                    <a><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></a>
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
                     <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
                 </div>
             </div>
         </div>
         <div class="task">
-            <img src="" alt="">
+            <img src="{{url_for('static', filename='img/icon/invite.png')}}" alt="">
             <h2>Вы ожидаете приглашения от работодателя.</h2>
             <p>Пожалуйста, ожидайте.</p>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
 </body>
 
 </html>

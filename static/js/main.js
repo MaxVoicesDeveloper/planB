@@ -27,3 +27,4 @@ document.querySelector('.alog').addEventListener('click', function(){
 document.querySelector('.closelog').addEventListener('click', function(){
     document.querySelector('.loga').classList.toggle('open');
 });
+
