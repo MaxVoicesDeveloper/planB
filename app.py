@@ -108,7 +108,7 @@ def register():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM t_users WHERE login = %s", (login,))
         user = cur.fetchone()
-        if user:
+        if not user:
             flash('Пользователь с таким логином уже существует.')
             return abort(400)
         else:
@@ -124,7 +124,7 @@ def register():
             cur.execute("INSERT INTO t_users (login, password, email, last_name, first_name, second_name, account_type) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
                         (login, password, email, last_name, first_name, second_name, account_type))
             mysql.connection.commit()
-            cur.execute("SELECT role_name FROM t_user_roles WHERE role_code = %s", (account_type))
+            cur.execute("SELECT role_name FROM t_user_roles WHERE role_code = %s", (account_type, ))
             account_type_name = cur.fetchone()[0]
             cur.close()
 
