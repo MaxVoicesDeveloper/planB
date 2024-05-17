@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, session, url_for, redirect, flash
+from flask import Flask, render_template, request, session, url_for, redirect, flash, abort
 from flask_mysqldb import MySQL
+#from werkzeug.security import generate_password_hash, check_password_hash 
 
 app = Flask(__name__)
 app.secret_key = 'gggforforgg' # Замените 'your_secret_key' на ваш секретный ключ
@@ -11,6 +12,22 @@ app.config['MYSQL_PASSWORD'] = 'app_user'
 app.config['MYSQL_DB'] = 'PlanBApp'
 
 mysql = MySQL(app)
+
+#################################################
+# Глобальные функции
+#################################################
+
+def translate_account_type(account_type):
+    if account_type == 'employer':
+        return 'personal_account'
+    elif account_type == 'employee':
+        return 'work'
+    else:
+        return False
+    
+#################################################
+# Функции перенаправлений Flask
+#################################################
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -55,36 +72,58 @@ def home():
             login = request.form.get('login')
             password = request.form.get('password')
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM t_users WHERE login = %s AND password = %s", (login, password))
+            cur.execute("SELECT u.id, u.login, ur.role_code, ur.role_name " +
+                        "FROM t_users AS u, t_user_roles AS ur " +
+                        "WHERE u.login LIKE %s AND u.password LIKE %s AND u.account_type = ur.role_code", (login, password))
             user = cur.fetchone()
             if user:
                 session['loggedin'] = True
                 session['id'] = user[0]
                 session['login'] = user[1]
+                session['account_type'] = user[2]
+                session['account_type_name'] = user[3]
                 flash('Login successful.')
-                return redirect(url_for('personal_account')) # Перенаправление на personal_account
+                page = translate_account_type(user[2])
+                if page:
+                    return url_for(page) # Перенаправление на personal_account
     return render_template('index.html')
 
-def translate_account_type(account_type):
-    if account_type == 'employer':
-        return 'Работодатель'
-    elif account_type == 'employee':
-        return 'Работник'
+@app.route('/login', methods=['POST'])
+def login():
+    login = request.form.get('login')
+    password = request.form.get('password')
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT u.id, u.login, ur.role_code, ur.role_name " +
+                "FROM t_users AS u, t_user_roles AS ur " +
+                "WHERE u.login LIKE %s AND u.password LIKE %s AND u.account_type = ur.role_code", (login, password))
+    user = cur.fetchone()
+    if user:
+        session['loggedin'] = True
+        session['id'] = user[0]
+        session['login'] = user[1]
+        session['account_type'] = user[2]
+        session['account_type_name'] = user[3]
+        flash('Login successful.')
+        page = translate_account_type(user[2])
+        if page:
+            return redirect(url_for(page))
     else:
-        return 'Неизвестный тип аккаунта'
+        return abort(401)
 
-@app.route('/personalaccount')
+@app.route('/personalaccount', methods=['GET', 'POST'])
 def personal_account():
     if 'loggedin' in session:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT account_type FROM t_users WHERE login = %s", (session['login'],))
-        account_type = cur.fetchone()[0]
-        session['account_type'] = account_type  # Сохраняем тип аккаунта в сессии
-        return render_template('personalaccount.html', translate_account_type=translate_account_type)  # Передаем функцию в шаблон
+        if request.method == 'GET':
+            return render_template('personalaccount.html')  # Передаем функцию в шаблон
     else:
         flash('You must be logged in to view that page.')
         return redirect(url_for('home'))
-
+    
+@app.route('/work', methods=['GET', 'POST'])
+def work():
+    if request.method == 'GET':
+        return render_template('work.html')
+    
 
 @app.route('/logout')
 def logout():

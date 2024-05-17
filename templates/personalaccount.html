@@ -23,7 +23,7 @@
                     <div class="info_name">
                         {% if session['loggedin'] %}
                         <p>{{ session['login'] }}</p>
-                        <p>{{ translate_account_type(session['account_type']) }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
                         {% endif %}
                     </div>
                 </div>

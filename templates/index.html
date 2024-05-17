@@ -135,11 +135,11 @@
                     <div class="form formlog">
                         <div class="error-message"></div>
                         <span>Авторизация</span>
-                        <form id="loginForm" action="/" method="post">
+                        <form id="loginForm" action="/login" method="post">
                             <input type="hidden" name="action" value="login">
                             <input type="text" name="login" placeholder="Логин" required>
                             <input type="password" name="password" placeholder="Пароль" required>
-                            <button type="button" onclick="loginUser()">Войти</button>
+                            <button type="submit" onclick="loginUser()">Войти</button>
                         </form>
 
                         <p>У вас ещё нет аккаунта? <a href="#" class="areg">Зарегестрироваться</a></p>
