@@ -110,6 +110,7 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` 
 FUNCTION IF NOT EXISTS `f_create_new_message`(p_id_user      BIGINT,
 								              p_message_text TEXT) RETURNS bigint
+    DETERMINISTIC
 BEGIN
 	DECLARE l_id_message BIGINT;
     
@@ -136,6 +137,7 @@ FUNCTION IF NOT EXISTS `f_create_new_task`(p_id_user     BIGINT,
                                            p_id_executor BIGINT,
                                            p_deadline    DATE,
                                            p_id_fk       BIGINT) RETURNS bigint
+    DETERMINISTIC
 BEGIN
 	DECLARE l_id_task BIGINT;
     
@@ -146,3 +148,33 @@ BEGIN
 RETURN l_id_task;
 END$$
 DELIMITER ;
+
+-- Функция создания новой организации
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` 
+FUNCTION IF NOT EXISTS `f_create_organization`(p_org_name  TEXT,
+										                           p_org_desc  TEXT,
+                                               p_org_num   TEXT,
+                                               p_org_email TEXT,
+                                               p_org_image BLOB,
+                                               p_id_creator INTEGER) RETURNS int
+    DETERMINISTIC
+BEGIN
+	DECLARE l_id_org INTEGER;
+    
+    INSERT INTO t_organzation(org_name, org_desc, legal_num, legal_email, image, created_by)
+    VALUES (p_org_name, p_org_desc, p_org_num, p_org_email, p_org_image, p_id_creator);
+    
+    SELECT id INTO l_id_org
+    FROM t_organization
+    WHERE created_by = p_id_creator
+    ORDER BY id DESC;
+    
+    UPDATE t_users
+    SET id_org = l_id_org
+    WHERE id = p_id_creator;
+    
+RETURN l_id_org;
+END$$
+DELIMITER ;
+

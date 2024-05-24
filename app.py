@@ -1,9 +1,15 @@
+import os
+import base64
 from flask import Flask, render_template, request, session, url_for, redirect, flash, abort
 from flask_mysqldb import MySQL
+from werkzeug.utils import secure_filename
 #from werkzeug.security import generate_password_hash, check_password_hash 
+
+UPLOAD_FOLDER = 'static/img/resources'
 
 app = Flask(__name__)
 app.secret_key = 'gggforforgg' # Замените 'your_secret_key' на ваш секретный ключ
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Настройка подключения к MySQL
 app.config['MYSQL_HOST'] = 'localhost'
@@ -24,6 +30,10 @@ def translate_account_type(account_type):
         return 'work'
     else:
         return False
+    
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ('png', 'jpg', 'img', 'ico', 'jpeg')
     
 #################################################
 # Функции перенаправлений Flask
@@ -154,7 +164,40 @@ def personal_account():
 def work():
     if request.method == 'GET':
         return render_template('work.html')
+
+@app.route('/create_organization', methods=['POST'])
+def create_organization():
+    if 'loggedin' not in session:
+        return redirect(url_for('home'))
     
+    org_name = request.form.get('name')
+    org_desc = request.form.get('description')
+    legal_num = request.form.get('document')    # ОГРН/ИНН
+    email = request.form.get('email')
+    source_image = request.files['profilePicture']
+
+    # Загрузка и выгрузка файла изображения в БД
+    if source_image is not None and source_image.filename != '':
+        # Сохраняем файл в локальной директории, просто путь к файлу получить нельзя :( 
+        filename = secure_filename(source_image.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        source_image.save(filepath)
+        
+        # Кодируем изображение в base64
+        encoded_image = ''
+        with open(filepath, 'r') as file:
+            encoded_image = base64.b64encode(file.read())
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM f_create_organization(%s, %s, %s, %s, %s, %s)",
+                    (org_name, org_desc, legal_num, email, encoded_image, session['id']))
+        
+        os.remove(filepath)
+
+        session['org_name'] = org_name
+        return redirect(url_for('personal_account'))
+        
+@app.route('/personalaccount/<org_name>', methods=['GET', 'POST'])
 
 @app.route('/logout')
 def logout():
@@ -162,6 +205,9 @@ def logout():
     session.pop('loggedin', None)
     session.pop('id', None)
     session.pop('login', None)
+    session.pop('account_type', None)
+    session.pop('account_type_name', None)
+    session.pop('org_name', None)
     # Перенаправление на главную страницу
     return redirect(url_for('home'))
 
