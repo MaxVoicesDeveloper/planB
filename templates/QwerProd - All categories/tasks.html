@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
-    <link rel="stylesheet" href="../../static/css/employerworkarea.css">
+    <link rel="stylesheet" href="../../static/css/tasks.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 </head>
 
 <body>
@@ -72,54 +73,33 @@
                     <button>Добавить сотрудника</button>
                 </div>
                 <div class="zag">
-                    <span>Сотрудники</span>
+                    <span>Задачи</span>
                 </div>
                 <div class="main">
-    
-                    <div class="employee-card">
-                        <div class="FIO">
-                            <span class="name">Голосов</span>
-                            <span class="lastname">Максим Евгеньевич</span>
-                            <div class="separator"></div>
-                        </div>
-                        <div class="avatar">
-                            <img src="../../static/img/icon/invite.png" alt="Подключи через флас (измени альт если заметишь)">
-                        </div>
-                        <div class="description">
-                            <div class="separator"></div>
-                            <span class="profession">Программист</span>
-                            <div class="separator-f"></div>
-                            <span class="email-login">
-                                <p>maksslesh@gmail.com</p>
-                                <p>MaxVoices</p>
-                            </span>
+                    <div class="tasks">
+                        <div class="taskn">
+                            <div class="active_task">
+                                <div class="text_task_status">
+                                    <input type="checkbox" id="status">
+                                    <label for="status">Задача</label>
+                                </div>
+                                <div class="down">
+                                    <img src="../../static/img/icon/down.png" alt="">
+                                </div>
+                            </div>
+                            <div class="delete_task">
+                                <img src="../../static/img/icon/delete.png" alt="">
+                            </div>
                         </div>
                     </div>
-                    <div class="employee-card">
-                        <div class="FIO">
-                            <span class="name">Голосов</span>
-                            <span class="lastname">Максим Евгеньевич</span>
-                            <div class="separator"></div>
-                        </div>
-                        <div class="avatar">
-                            <img src="../../static/img/icon/invite.png" alt="Подключи через флас (измени альт если заметишь)">
-                        </div>
-                        <div class="description">
-                            <div class="separator"></div>
-                            <span class="profession">Программист</span>
-                            <div class="separator-f"></div>
-                            <span class="email-login">
-                                <p>maksslesh@gmail.com</p>
-                                <p>MaxVoices</p>
-                            </span>
-                        </div>
-                    </div>
-
                 </div>
             </div>
     
         </div>
     </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
 </body>
 
