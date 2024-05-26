@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="../../static/css/employerworkarea.css">
+</head>
+
+<body>
+    <div class="global-container">
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+                <div class="travelguide">
+                    <a href=""><span>Задачи</span></a>
+                    <div class="separator"></div>
+                    <a href=""><span>Сотрудники</span></a>
+                    <div class="separator"></div>
+                    <a href=""><span>Чат</span></a>
+                    <div class="separator"></div>
+                </div>
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="task">
+                <div class="header">
+                    <span>OrganizationName</span>
+                    <button>Добавить сотрудника</button>
+                </div>
+                <div class="zag">
+                    <span>Сотрудники</span>
+                </div>
+                <div class="main">
+    
+                    <div class="employee-card">
+                        <div class="FIO">
+                            <span class="name">Голосов</span>
+                            <span class="lastname">Максим Евгеньевич</span>
+                            <div class="separator"></div>
+                        </div>
+                        <div class="avatar">
+                            <img src="../../static/img/icon/invite.png" alt="Подключи через флас (измени альт если заметишь)">
+                        </div>
+                        <div class="description">
+                            <div class="separator"></div>
+                            <span class="profession">Программист</span>
+                            <div class="separator-f"></div>
+                            <span class="email-login">
+                                <p>maksslesh@gmail.com</p>
+                                <p>MaxVoices</p>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="employee-card">
+                        <div class="FIO">
+                            <span class="name">Голосов</span>
+                            <span class="lastname">Максим Евгеньевич</span>
+                            <div class="separator"></div>
+                        </div>
+                        <div class="avatar">
+                            <img src="../../static/img/icon/invite.png" alt="Подключи через флас (измени альт если заметишь)">
+                        </div>
+                        <div class="description">
+                            <div class="separator"></div>
+                            <span class="profession">Программист</span>
+                            <div class="separator-f"></div>
+                            <span class="email-login">
+                                <p>maksslesh@gmail.com</p>
+                                <p>MaxVoices</p>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+    
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+
+</html>
