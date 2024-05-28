@@ -96,6 +96,20 @@ INSERT INTO t_user_roles(role_code, role_name)
 VALUES ('employer', 'Работодатель'),
        ('employee', 'Работник');
 
+-- Таблица организаций
+CREATE TABLE `t_organization` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `org_name` varchar(100) NOT NULL,
+  `org_desc` varchar(1000) DEFAULT NULL,
+  `legal_num` varchar(16) NOT NULL,
+  `legal_email` varchar(75) NOT NULL,
+  `image` blob NOT NULL,
+  `created_by` bigint NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `org_name_UNIQUE` (`org_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -------------------------------------------------
 -- Функции
@@ -151,7 +165,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` 
 FUNCTION IF NOT EXISTS `f_create_organization`(p_org_name  TEXT,
-										                           p_org_desc  TEXT,
+					       p_org_desc  TEXT,
                                                p_org_num   TEXT,
                                                p_org_email TEXT,
                                                p_org_image BLOB,
