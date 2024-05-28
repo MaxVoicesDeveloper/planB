@@ -51,6 +51,19 @@ CREATE TABLE IF NOT EXISTS `t_chat_messages` (
   CONSTRAINT `fk_id_user` FOREIGN KEY (`id_user`) REFERENCES `t_users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Таблица статусов задачи (справочник)
+CREATE TABLE IF NOT EXISTS `t_task_statuses` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `status_code` varchar(50) NOT NULL,
+  `status_name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Справочная информация
+INSERT INTO t_task_statuses(status_code, status_name)
+VALUES ('NEW', 'Открыта'),
+       ('CLOSED', 'Выполнена'),
+       ('DELETED', 'Удалена');
 
 -- Таблица задач
 CREATE TABLE IF NOT EXISTS `t_tasks` (
@@ -69,15 +82,6 @@ CREATE TABLE IF NOT EXISTS `t_tasks` (
   CONSTRAINT `fk_id_status` FOREIGN KEY (`id_status`) REFERENCES `t_task_statuses` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
--- Таблица статусов задачи (справочник)
-CREATE TABLE IF NOT EXISTS `t_task_statuses` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `status_code` varchar(50) NOT NULL,
-  `status_name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 -- Таблица ролей пользователей (справочник)
 CREATE TABLE `t_user_roles` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -87,12 +91,6 @@ CREATE TABLE `t_user_roles` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `role_code_UNIQUE` (`role_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Справочная информация
-INSERT INTO t_task_statuses(status_code, status_name)
-VALUES ('NEW', 'Открыта'),
-       ('CLOSED', 'Выполнена'),
-       ('DELETED', 'Удалена');
 
 INSERT INTO t_user_roles(role_code, role_name)
 VALUES ('employer', 'Работодатель'),
