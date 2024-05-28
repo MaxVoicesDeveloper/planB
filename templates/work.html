@@ -65,9 +65,11 @@
             </div>
         </div>
         <div class="task">
+            {% if not session['org_name'] %}
             <img src="{{url_for('static', filename='img/icon/invite.png')}}" alt="">
             <h2>Вы ожидаете приглашения от работодателя.</h2>
             <p>Пожалуйста, ожидайте.</p>
+            {% endif %}
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+    <script src="../static/js/personal.js"></script>
 </head>
 
 <body>
@@ -49,20 +50,20 @@
                 </div>
                 <div class="form-elements element-org">
                     <div class="form-org">
-                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                        <form id="changeForm" action="/create_organization" method="post" enctype="multipart/form-data">
                                 <div class="org">
                                     <label for="profilePictureInput">
-                                        <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture">
+                                        <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" id="preview-image" style="display: none;">
                                         <span>Change Image</span>
                                     </label>
                                     <span for="name">Название организации</span>
                                 </div>
-                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
+                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" accept=".png,.jpeg,.jpg">
                                 <input type="text" name="name" placeholder="Название" required>
                                 <input type="text" name="description" placeholder="Описание" required>
                                 <input type="text" name="document" placeholder="ОГРН/ИНН" required>
-                                <input type="text" name="email" placeholder="Почта" required>
-                                <button type="submit">Создать</button>
+                                <input type="email" name="email" placeholder="Почта" required>
+                                <button type="submit" value="Upload">Создать</button>
                         </form>
                     </div>
                 </div>
@@ -96,9 +97,11 @@
             </div>
         </div>
         <div class="task">
+            {% if not session['org_name'] %}
             <img src="{{url_for('static', filename='img/icon/notepad.png')}}" alt="">
             <span>У вас пока нет организации</span>
             <button class="to-open-add-org">Добавить организацию</button>
+            {% endif %}
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
