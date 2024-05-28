@@ -162,7 +162,7 @@ FUNCTION IF NOT EXISTS `f_create_organization`(p_org_name  TEXT,
 BEGIN
 	DECLARE l_id_org INTEGER;
     
-    INSERT INTO t_organzation(org_name, org_desc, legal_num, legal_email, image, created_by)
+    INSERT INTO t_organization(org_name, org_desc, legal_num, legal_email, image, created_by)
     VALUES (p_org_name, p_org_desc, p_org_num, p_org_email, p_org_image, p_id_creator);
     
     SELECT id INTO l_id_org

@@ -97,9 +97,11 @@
             </div>
         </div>
         <div class="task">
+            {% if not session['org_name'] %}
             <img src="{{url_for('static', filename='img/icon/notepad.png')}}" alt="">
             <span>У вас пока нет организации</span>
             <button class="to-open-add-org">Добавить организацию</button>
+            {% endif %}
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
