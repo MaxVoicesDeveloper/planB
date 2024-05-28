@@ -27,7 +27,7 @@ CREATE TABLE `t_users` (
   `second_name` varchar(75) DEFAULT NULL,
   `account_type` varchar(25) NOT NULL DEFAULT 'employee',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Таблица чатов
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `t_tasks` (
   KEY `fk_id_status_idx` (`id_status`),
   CONSTRAINT `fk_id_executor` FOREIGN KEY (`id_executor`) REFERENCES `t_users` (`id`),
   CONSTRAINT `fk_id_status` FOREIGN KEY (`id_status`) REFERENCES `t_task_statuses` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Таблица статусов задачи (справочник)
