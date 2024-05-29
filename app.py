@@ -23,7 +23,7 @@ mysql = MySQL(app)
 # Глобальные функции
 #################################################
 
-def translate_account_type(account_type, org_name):
+def translate_account_type(account_type, org_name=None):
     
     # Определение типа пользователя 
     curr_redirect_url = ''
@@ -129,19 +129,19 @@ def register():
     else:
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM t_users WHERE login = %s", (login,))
-        user = cur.fetchone()
-        if not user:
+        user = cur.fetchall()
+        if len(user) > 0:
             flash('Пользователь с таким логином уже существует.')
             return abort(400)
         else:
             # Маппинг ФИО (можно без отчества)
-            last_name = ''
-            first_name = ''
             try:
-                last_name, first_name, second_name = name.split(' ')
+                fio_arr = name.split(' ')
+                last_name = fio_arr[0]
+                first_name = fio_arr[1]
+                second_name = fio_arr[2]
             except ValueError:
-                last_name, first_name = name.split(' ')
-                second_name = ''
+                second_name = None
 
             cur.execute("INSERT INTO t_users (login, password, email, last_name, first_name, second_name, account_type) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
                         (login, password, email, last_name, first_name, second_name, account_type))
