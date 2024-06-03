@@ -3,6 +3,7 @@ import base64
 from flask import Flask, render_template, request, session, url_for, redirect, flash, abort
 from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
+from flask import jsonify
 #from werkzeug.security import generate_password_hash, check_password_hash 
 
 UPLOAD_FOLDER = 'static/img/resources'
@@ -98,7 +99,7 @@ def login():
                 "FROM t_users AS u " +
                 "JOIN t_user_roles AS ur ON u.account_type = ur.role_code " +
                 "LEFT JOIN t_organization AS o ON u.id_org = o.id " +
-                "WHERE u.login LIKE %s AND u.password LIKE %s", (login, password))
+                "WHERE u.login = %s AND u.password = %s", (login, password))
     user = cur.fetchone()
     if user:
         session['loggedin'] = True
@@ -107,6 +108,7 @@ def login():
         session['account_type'] = user[2]
         session['account_type_name'] = user[3]
         session['org_name'] = user[4]
+        session['user_id'] = user[0]  # Сохраняем user_id в сессии
         flash('Login successful.')
 
         page = translate_account_type(user[2], user[4])
@@ -114,6 +116,7 @@ def login():
             return redirect(url_for(page, org_name=user[4]))
     else:
         return abort(401)
+
     
 @app.route('/register', methods=['POST'])
 def register():
@@ -148,11 +151,12 @@ def register():
             mysql.connection.commit()
             cur.execute("SELECT role_name FROM t_user_roles WHERE role_code = %s", (account_type, ))
             account_type_name = cur.fetchone()[0]
+            user_id = cur.lastrowid
             cur.close()
 
             flash('Registration successful.')
             session['loggedin'] = True
-            session['id'] = cur.lastrowid
+            session['user_id'] = user_id
             session['login'] = login
             session['account_type'] = account_type
             session['account_type_name'] = account_type_name
@@ -162,6 +166,7 @@ def register():
                 return redirect(url_for(page))
             else:
                 abort(404)
+
 
 @app.route('/personalaccount', methods=['GET', 'POST'])
 def personal_account():
@@ -179,36 +184,48 @@ def work():
 
 @app.route('/create_organization', methods=['POST'])
 def create_organization():
-    if 'loggedin' not in session:
-        return redirect(url_for('home'))
-    
-    org_name = request.form.get('name')
-    org_desc = request.form.get('description')
-    legal_num = request.form.get('document')    # ОГРН/ИНН
-    email = request.form.get('email')
-    # source_image = request.files['profilePicture']
-
-    # Загрузка и выгрузка файла изображения в БД
-    if org_name and org_desc and legal_num and email: #and source_image is not None and source_image.filename != '':
-        # Сохраняем файл в локальной директории, просто путь к файлу получить нельзя :( 
-        # filename = secure_filename(source_image.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, 'org.png')
-        # source_image.save(filepath)
+    if 'user_id' not in session:
+        flash('User not logged in')
+        return redirect(url_for('login'))
         
-        # Кодируем изображение в base64
-        encoded_image = ''
-        with open(filepath, 'rb') as file:
-            encoded_image = file.read()
+    if request.method == 'POST':
+        # Получение данных из формы
+        org_name = request.form['org_name']
+        org_desc = request.form['org_desc']
+        org_num = request.form['org_num']
+        org_email = request.form['org_email']
+        org_image = request.files['org_image']
+        id_creator = session['user_id']  # Получение ID текущего пользователя из сессии
 
         cur = mysql.connection.cursor()
-        cur.execute("SELECT f_create_organization(%s, %s, %s, %s, %s, %s) AS l_id_org;",
-                    (org_name, org_desc, legal_num, email, encoded_image, session['id']))
+        cur.execute("INSERT INTO t_organization (org_name, org_desc, org_num, org_email, org_image, id_creator) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (org_name, org_desc, org_num, org_email, org_image.read(), id_creator))
         mysql.connection.commit()
-        
-        # os.remove(filepath)
 
-        session['org_name'] = org_name
-        return redirect('/personalaccount/' + org_name)
+        # Получаем данные организации, которую только что создали
+        cur.execute("SELECT org_name FROM t_organization WHERE id_creator = %s ORDER BY id DESC LIMIT 1", (id_creator,))
+        organization = cur.fetchone()
+
+        cur.close()
+
+        if organization:
+            session['org_name'] = organization[0]
+            flash('Organization created successfully.')
+            return redirect(url_for('personal_account_org', org_name=session['org_name']))
+        else:
+            flash('Failed to create organization.')
+            return redirect(url_for('home'))
+
+
+
+
+
+
+
+
+
+
+
         
 @app.route('/personalaccount/<org_name>', methods=['GET', 'POST'])
 def personal_account_org(org_name):

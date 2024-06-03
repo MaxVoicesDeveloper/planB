@@ -1,3 +1,4 @@
+{% if session['org_name'] %}
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -11,9 +12,6 @@
 
 <body>
     <div class="container">
-
-
-
         <div class="modal-window setting">
             <div class="form-setting">
                 <div class="top-elements">
@@ -39,6 +37,85 @@
             </div>
         </div>
 
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                </div>
+            </div>
+        </div>
+        <div class="task">
+            {% if session['org_name'] %}
+            <span>{{ session['org_name'] }}</span>
+            <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Personal Account</a>
+            {% else %}
+            <span>У вас пока нет организации</span>
+            <button class="to-open-add-org">Добавить организацию</button>
+            {% endif %}
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+
+</html>
+
+
+{% else %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+    <script src="../static/js/personal.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="modal-window setting">
+            <div class="form-setting">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="but-close to-close-setting">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                                <label for="profilePictureInput">
+                                    <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
+                                    <span>Change Image</span>
+                                </label>
+                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
+                                <input type="text" name="name" placeholder="Имя" required>
+                                <button type="submit">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <div class="modal-window add-org">
             <div class="form-setting forg">
                 <div class="top-elements">
@@ -50,27 +127,26 @@
                 </div>
                 <div class="form-elements element-org">
                     <div class="form-org">
-                        <form id="changeForm" action="/create_organization" method="post" enctype="multipart/form-data">
-                                <div class="org">
-                                    <label for="profilePictureInput">
-                                        <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" id="preview-image" style="display: none;">
-                                        <span>Change Image</span>
-                                    </label>
-                                    <span for="name">Название организации</span>
-                                </div>
-                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" accept=".png,.jpeg,.jpg">
-                                <input type="text" name="name" placeholder="Название" required>
-                                <input type="text" name="description" placeholder="Описание" required>
-                                <input type="text" name="document" placeholder="ОГРН/ИНН" required>
-                                <input type="email" name="email" placeholder="Почта" required>
-                                <button type="submit" value="Upload">Создать</button>
+                        <form id="changeForm" action="{{ url_for('create_organization') }}" method="post" enctype="multipart/form-data">
+                            <div class="org">
+                                <label for="profilePictureInput">
+                                    <img src="{{ url_for('static', filename='img/icon/zaglimg.png') }}" alt="Profile Picture" id="preview-image" style="display: none;" name="org_image">
+                                    <span>Change Image</span>
+                                </label>
+                                <span for="name">Название организации</span>
+                            </div>
+                            <input type="file" id="profilePictureInput" name="org_image" style="display:none;" accept=".png,.jpeg,.jpg">
+                            <input type="text" name="org_name" placeholder="Название" required>
+                            <input type="text" name="org_desc" placeholder="Описание" required>
+                            <input type="text" name="org_num" placeholder="ОГРН/ИНН" required>
+                            <input type="email" name="org_email" placeholder="Почта" required>
+                            <button type="submit" value="Upload">Создать</button>
                         </form>
                     </div>
                 </div>
+                
             </div>
         </div>
-
-
 
 
         <div class="left-menu">
@@ -97,8 +173,10 @@
             </div>
         </div>
         <div class="task">
-            {% if not session['org_name'] %}
-            <img src="{{url_for('static', filename='img/icon/notepad.png')}}" alt="">
+            {% if session['org_name'] %}
+            <span>{{ session['org_name'] }}</span>
+            <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Personal Account</a>
+            {% else %}
             <span>У вас пока нет организации</span>
             <button class="to-open-add-org">Добавить организацию</button>
             {% endif %}
@@ -108,3 +186,10 @@
 </body>
 
 </html>
+
+
+{% endif %}
+
+
+
+
