@@ -5,27 +5,21 @@ from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
 from flask import jsonify
 #from werkzeug.security import generate_password_hash, check_password_hash 
-
 UPLOAD_FOLDER = 'static/img/resources'
-
 app = Flask(__name__)
 app.secret_key = 'gggforforgg' # Замените 'your_secret_key' на ваш секретный ключ
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # Настройка подключения к MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'app_user'
-app.config['MYSQL_PASSWORD'] = 'app_user'
+app.config['MYSQL_HOST'] = '192.168.2.60'
+app.config['MYSQL_USER'] = '02-Student8'
+app.config['MYSQL_PASSWORD'] = '02-Zcneltyn'
+app.config['MYSQL_PORT'] = 3310
 app.config['MYSQL_DB'] = 'PlanBApp'
-
 mysql = MySQL(app)
-
 #################################################
 # Глобальные функции
 #################################################
-
 def translate_account_type(account_type, org_name=None):
-    
     # Определение типа пользователя 
     curr_redirect_url = ''
     if account_type == 'employer':
@@ -34,19 +28,13 @@ def translate_account_type(account_type, org_name=None):
         curr_redirect_url = 'work'
     else:
         return False
-    
     # Определение организации (привязана ли организация к пользователю)
     if org_name is not None:
         curr_redirect_url += '_org'
-
     return curr_redirect_url
-    
-
-    
 #################################################
 # Функции перенаправлений Flask
 #################################################
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
@@ -87,7 +75,6 @@ def home():
                     session['login'] = login
                     return redirect(url_for('personal_account')) # Перенаправление на personal_account
     return render_template('index.html')
-
 @app.route('/login', methods=['POST'])
 def login():
     login = request.form.get('login')
@@ -108,14 +95,12 @@ def login():
         session['org_name'] = user[4]
         session['user_id'] = user[0]  # Сохраняем user_id в сессии
         flash('Login successful.')
-
         page = translate_account_type(user[2], user[4])
         if page:
             return redirect(url_for(page, org_name=user[4]))
     else:
         return abort(401)
 
-    
 @app.route('/register', methods=['POST'])
 def register():
     name = request.form.get('name')
@@ -123,7 +108,6 @@ def register():
     password = request.form.get('password')
     email = request.form.get('email')
     account_type = request.form.get('account_type')
-
     if not name or not login or not password or not email or not account_type:
         flash('Пожалуйста, заполните все поля!')
         return abort(400)
@@ -143,7 +127,6 @@ def register():
                 second_name = fio_arr[2]
             except ValueError:
                 second_name = None
-
             cur.execute("INSERT INTO t_users (login, password, email, last_name, first_name, second_name, account_type) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
                         (login, password, email, last_name, first_name, second_name, account_type))
             mysql.connection.commit()
@@ -151,20 +134,17 @@ def register():
             account_type_name = cur.fetchone()[0]
             user_id = cur.lastrowid
             cur.close()
-
             flash('Registration successful.')
             session['loggedin'] = True
             session['user_id'] = user_id
             session['login'] = login
             session['account_type'] = account_type
             session['account_type_name'] = account_type_name
-
             page = translate_account_type(account_type)
             if page:
                 return redirect(url_for(page))
             else:
                 abort(404)
-
 
 @app.route('/personalaccount', methods=['GET', 'POST'])
 def personal_account():
@@ -179,6 +159,8 @@ def personal_account():
 def work():
     if request.method == 'GET':
         return render_template('work.html')
+
+
 
 @app.route('/create_organization', methods=['POST'])
 def create_organization():
@@ -197,6 +179,11 @@ def create_organization():
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO t_organization (org_name, org_desc, legal_num, legal_email, created_by) VALUES (%s, %s, %s, %s, %s)",
                     (org_name, org_desc, org_num, org_email, id_org))
+        org_id = cur.lastrowid
+        mysql.connection.commit()
+
+        # Update the id_org column in the t_users table
+        cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (org_id, id_org))
         mysql.connection.commit()
 
         # Получаем данные организации, которую только что создали
@@ -210,8 +197,6 @@ def create_organization():
         if organization:
             session['org_name'] = organization[0]
             flash('Organization created successfully.')
-            cur.execute("ALTER TABLE t_users ADD CONSTRAINT fk_id_org FOREIGN KEY (id_org) REFERENCES t_organization(id)")
-            mysql.connection.commit()
             return redirect(url_for('personal_account_org', org_name=session['org_name']))
         else:
             flash('Failed to create organization.')
@@ -220,14 +205,7 @@ def create_organization():
 
 
 
-
-
-
-
-
-
-
-        
+         
 @app.route('/personalaccount/<org_name>', methods=['GET', 'POST'])
 def personal_account_org(org_name):
     if session['loggedin'] is None:
