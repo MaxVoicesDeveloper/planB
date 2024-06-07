@@ -127,19 +127,15 @@
                 </div>
                 <div class="form-elements element-org">
                     <div class="form-org">
-                        <form id="changeForm" action="{{ url_for('create_organization') }}" method="post" enctype="multipart/form-data">
+                        <form id="changeForm" action="{{ url_for('create_organization') }}" method="post">
                             <div class="org">
-                                <label for="profilePictureInput">
-                                    <img src="{{ url_for('static', filename='img/icon/zaglimg.png') }}" alt="Profile Picture" id="preview-image" style="display: none;" name="org_image">
-                                    <span>Change Image</span>
-                                </label>
+                                
                                 <span for="name">Название организации</span>
                             </div>
-                            <input type="file" id="profilePictureInput" name="org_image" style="display:none;" accept=".png,.jpeg,.jpg">
                             <input type="text" name="org_name" placeholder="Название" required>
                             <input type="text" name="org_desc" placeholder="Описание" required>
-                            <input type="text" name="org_num" placeholder="ОГРН/ИНН" required>
-                            <input type="email" name="org_email" placeholder="Почта" required>
+                            <input type="text" name="legal_num" placeholder="ОГРН/ИНН" required>
+                            <input type="email" name="legal_email" placeholder="Почта" required>
                             <button type="submit" value="Upload">Создать</button>
                         </form>
                     </div>

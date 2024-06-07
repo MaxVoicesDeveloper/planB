@@ -41,9 +41,7 @@ def translate_account_type(account_type, org_name=None):
 
     return curr_redirect_url
     
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ('png', 'jpg', 'img', 'ico', 'jpeg')
+
     
 #################################################
 # Функции перенаправлений Flask
@@ -192,25 +190,28 @@ def create_organization():
         # Получение данных из формы
         org_name = request.form['org_name']
         org_desc = request.form['org_desc']
-        org_num = request.form['org_num']
-        org_email = request.form['org_email']
-        org_image = request.files['org_image']
-        id_creator = session['user_id']  # Получение ID текущего пользователя из сессии
+        org_num = request.form['legal_num']
+        org_email = request.form['legal_email']
+        id_org = session['user_id']  # Получение ID текущего пользователя из сессии
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO t_organization (org_name, org_desc, org_num, org_email, org_image, id_creator) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (org_name, org_desc, org_num, org_email, org_image.read(), id_creator))
+        cur.execute("INSERT INTO t_organization (org_name, org_desc, legal_num, legal_email, created_by) VALUES (%s, %s, %s, %s, %s)",
+                    (org_name, org_desc, org_num, org_email, id_org))
         mysql.connection.commit()
 
         # Получаем данные организации, которую только что создали
-        cur.execute("SELECT org_name FROM t_organization WHERE id_creator = %s ORDER BY id DESC LIMIT 1", (id_creator,))
+        cur.execute("SELECT org_name FROM t_organization WHERE created_by = %s ORDER BY id DESC LIMIT 1", (id_org,))
         organization = cur.fetchone()
+        info = ",".join(item for item in organization)
+        flash(info)
 
         cur.close()
 
         if organization:
             session['org_name'] = organization[0]
             flash('Organization created successfully.')
+            cur.execute("ALTER TABLE t_users ADD CONSTRAINT fk_id_org FOREIGN KEY (id_org) REFERENCES t_organization(id)")
+            mysql.connection.commit()
             return redirect(url_for('personal_account_org', org_name=session['org_name']))
         else:
             flash('Failed to create organization.')
