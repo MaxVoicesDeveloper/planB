@@ -8,7 +8,7 @@ CREATE TABLE `t_users` (
   `last_name` varchar(75) NOT NULL,
   `first_name` varchar(75) NOT NULL,
   `second_name` varchar(75) DEFAULT NULL,
-  `id_org` BIGINT DEFAULT NULL,
+  `id_org` bigint DEFAULT NULL,
   `account_type` varchar(25) NOT NULL DEFAULT 'employee',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

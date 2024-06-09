@@ -6,17 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlanB</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
-    <script src="../static/js/personal.js"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/tasks.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="global-container">
         <div class="modal-window setting">
             <div class="form-setting">
                 <div class="top-elements">
                     <span>Plan <font>B</font></span>
-                    <div class="but-close to-close-setting">
+                    <div class="to-close-setting">
                         <div class="line"></div>
                         <div class="line"></div>
                     </div>
@@ -36,13 +36,19 @@
                 </div>
             </div>
         </div>
-
         <div class="left-menu">
             <div class="logo">
                 <span>Plan <font>B</font></span>
             </div>
             <div class="global-set">
-
+                <div class="travelguide">
+                    <a href=""><span>Задачи</span></a>
+                    <div class="separator"></div>
+                    <a href=""><span>Сотрудники</span></a>
+                    <div class="separator"></div>
+                    <a href=""><span>Чат</span></a>
+                    <div class="separator"></div>
+                </div>
             </div>
             <div class="account">
                 <div class="account_info">
@@ -60,22 +66,44 @@
                 </div>
             </div>
         </div>
-        <div class="task">
-            {% if session['org_name'] %}
-            <span>{{ session['org_name'] }}</span>
-            <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Personal Account</a>
-            {% else %}
-            <span>У вас пока нет организации</span>
-            <button class="to-open-add-org">Добавить организацию</button>
-            {% endif %}
+        
+        <div class="container">
+            <div class="task">
+                <div class="header">
+                    <span>{{ session['org_name'] }}</span>
+                </div>
+                <div class="zag">
+                    <span>Задачи</span>
+                </div>
+                <div class="main">
+                    <div class="tasks">
+                        <div class="taskn">
+                            <div class="active_task">
+                                <div class="text_task_status">
+                                    <input type="checkbox" id="status">
+                                    <label for="status">Задача</label>
+                                </div>
+                                <div class="down">
+                                    <img src="{{url_for('static', filename='../../static/img/icon/down.png')}}" alt="">
+                                </div>
+                            </div>
+                            <div class="delete_task">
+                                <img src="{{url_for('static', filename='../../static/img/icon/delete.png')}}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
         </div>
     </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
 </body>
 
 </html>
-
-
 {% else %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -171,7 +199,6 @@
         <div class="task">
             {% if session['org_name'] %}
             <span>{{ session['org_name'] }}</span>
-            <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Personal Account</a>
             {% else %}
             <span>У вас пока нет организации</span>
             <button class="to-open-add-org">Добавить организацию</button>

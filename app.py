@@ -5,17 +5,19 @@ from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
 from flask import jsonify
 #from werkzeug.security import generate_password_hash, check_password_hash 
+
 UPLOAD_FOLDER = 'static/img/resources'
 app = Flask(__name__)
 app.secret_key = 'gggforforgg' # Замените 'your_secret_key' на ваш секретный ключ
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 # Настройка подключения к MySQL
-app.config['MYSQL_HOST'] = '192.168.2.60'
-app.config['MYSQL_USER'] = '02-Student8'
-app.config['MYSQL_PASSWORD'] = '02-Zcneltyn'
-app.config['MYSQL_PORT'] = 3310
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Maxonbd15)'
 app.config['MYSQL_DB'] = 'PlanBApp'
 mysql = MySQL(app)
+
 #################################################
 # Глобальные функции
 #################################################
@@ -32,6 +34,7 @@ def translate_account_type(account_type, org_name=None):
     if org_name is not None:
         curr_redirect_url += '_org'
     return curr_redirect_url
+
 #################################################
 # Функции перенаправлений Flask
 #################################################
@@ -75,6 +78,7 @@ def home():
                     session['login'] = login
                     return redirect(url_for('personal_account')) # Перенаправление на personal_account
     return render_template('index.html')
+
 @app.route('/login', methods=['POST'])
 def login():
     login = request.form.get('login')
@@ -101,7 +105,7 @@ def login():
     else:
         return abort(401)
 
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['GET','POST'])
 def register():
     name = request.form.get('name')
     login = request.form.get('login')
@@ -109,7 +113,7 @@ def register():
     email = request.form.get('email')
     account_type = request.form.get('account_type')
     if not name or not login or not password or not email or not account_type:
-        flash('Пожалуйста, заполните все поля!')
+        flash('Пожалуйста, заполните все поля')
         return abort(400)
     else:
         cur = mysql.connection.cursor()
@@ -128,24 +132,38 @@ def register():
             except ValueError:
                 second_name = None
             cur.execute("INSERT INTO t_users (login, password, email, last_name, first_name, second_name, account_type) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
-                        (login, password, email, last_name, first_name, second_name, account_type))
+                (login, password, email, last_name, first_name, second_name, account_type))
             mysql.connection.commit()
             cur.execute("SELECT role_name FROM t_user_roles WHERE role_code = %s", (account_type, ))
             account_type_name = cur.fetchone()[0]
             user_id = cur.lastrowid
+            print(user_id)
             cur.close()
             flash('Registration successful.')
-            session['loggedin'] = True
-            session['user_id'] = user_id
-            session['login'] = login
-            session['account_type'] = account_type
-            session['account_type_name'] = account_type_name
-            page = translate_account_type(account_type)
-            if page:
-                return redirect(url_for(page))
+            login = request.form.get('login')
+            password = request.form.get('password')
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT u.id, u.login, ur.role_code, ur.role_name, o.org_name " +
+                        "FROM t_users AS u " +
+                        "JOIN t_user_roles AS ur ON u.account_type = ur.role_code " +
+                        "LEFT JOIN t_organization AS o ON u.id_org = o.id " +
+                        "WHERE u.login = %s AND u.password = %s", (login, password))
+            user = cur.fetchone()
+            if user:
+                session['loggedin'] = True
+                session['id'] = user[0]
+                session['login'] = user[1]
+                session['account_type'] = user[2]
+                session['account_type_name'] = user[3]
+                session['org_name'] = user[4]
+                session['user_id'] = user[0]  # Сохраняем user_id в сессии
+                flash('Login successful.')
+                page = translate_account_type(user[2], user[4])
+                if page:
+                    return redirect(url_for(page, org_name=user[4]))
             else:
-                abort(404)
-
+                return abort(401)
+        
 @app.route('/personalaccount', methods=['GET', 'POST'])
 def personal_account():
     if 'loggedin' in session:
@@ -167,30 +185,39 @@ def create_organization():
     if 'user_id' not in session:
         flash('User not logged in')
         return redirect(url_for('login'))
-        
+
     if request.method == 'POST':
+        cur = mysql.connection.cursor()
+
         # Получение данных из формы
         org_name = request.form['org_name']
         org_desc = request.form['org_desc']
         org_num = request.form['legal_num']
         org_email = request.form['legal_email']
-        id_org = session['user_id']  # Получение ID текущего пользователя из сессии
 
-        cur = mysql.connection.cursor()
+        cur.execute('SELECT id from t_users')
+
+        id_user = session['user_id']  # Получение ID текущего пользователя из сессии
+        print()
+        print()
+        print(session['user_id'])
+        print()
+        print()
+        print(org_name, org_desc, org_num, org_email, id_user)
         cur.execute("INSERT INTO t_organization (org_name, org_desc, legal_num, legal_email, created_by) VALUES (%s, %s, %s, %s, %s)",
-                    (org_name, org_desc, org_num, org_email, id_org))
+                    (org_name, org_desc, org_num, org_email, id_user))
         org_id = cur.lastrowid
-        mysql.connection.commit()
-
+        print(org_id)
         # Update the id_org column in the t_users table
-        cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (org_id, id_org))
+        cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (org_id, id_user))
         mysql.connection.commit()
-
+        cur.execute("SELECT * FROM t_organization WHERE created_by = %s ORDER BY id DESC", (id_user,))
+        organizations = cur.fetchone()
+        print(organizations)
         # Получаем данные организации, которую только что создали
-        cur.execute("SELECT org_name FROM t_organization WHERE created_by = %s ORDER BY id DESC LIMIT 1", (id_org,))
+        cur.execute("SELECT org_name FROM t_organization WHERE created_by = %s ORDER BY id DESC LIMIT 1", (id_user,))
         organization = cur.fetchone()
-        info = ",".join(item for item in organization)
-        flash(info)
+        
 
         cur.close()
 
@@ -201,7 +228,6 @@ def create_organization():
         else:
             flash('Failed to create organization.')
             return redirect(url_for('home'))
-
 
 
 
