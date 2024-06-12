@@ -35,6 +35,9 @@ html, body{
 
 .travelguide a{
     text-decoration: none;
+    font-size: 30px;
+    font-family: 'Nunito';
+    color: #ffffff;
 }
 
 .travelguide a span{

@@ -1,9 +1,5 @@
-import os
-import base64
 from flask import Flask, render_template, request, session, url_for, redirect, flash, abort
 from flask_mysqldb import MySQL
-from werkzeug.utils import secure_filename
-from flask import jsonify
 #from werkzeug.security import generate_password_hash, check_password_hash 
 
 UPLOAD_FOLDER = 'static/img/resources'
@@ -231,7 +227,6 @@ def create_organization():
 
 
 
-         
 @app.route('/personalaccount/<org_name>', methods=['GET', 'POST'])
 def personal_account_org(org_name):
     if session['loggedin'] is None:
@@ -253,6 +248,62 @@ def work_org(org_name):
     
     if request.method == 'GET':
         return render_template('work.html')
+    
+
+
+@app.route('/personalaccount/add_task', methods=['POST'])
+def add_task():
+    if 'loggedin' not in session:
+        return redirect(url_for('home'))
+
+    if 'org_name' not in session:
+        return redirect(url_for('personal_account'))
+
+    task_title = request.form.get('task_title')
+    task_desc = request.form.get('task_desc')
+    task_deadline = request.form.get('task_deadline')
+
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO t_tasks (title, desc_text, date_deadline, id_executor, id_status) VALUES (%s, %s, %s, %s, %s)",
+                (task_title, task_desc, task_deadline, session['id'], 1))  # 1 - NEW status
+    task_id = cur.lastrowid
+    cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (session['org_id'], session['id']))
+    mysql.connection.commit()
+    cur.close()
+
+    flash('Task added successfully.')
+    return redirect(url_for('personal_account'))
+
+
+@app.route('/personalaccount/tasks', methods=['GET'])
+def get_tasks():
+    if 'loggedin' not in session:
+        return redirect(url_for('home'))
+
+    if 'org_name' not in session:
+        return redirect(url_for('personal_account'))
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM t_tasks WHERE id_executor = %s AND id_org = %s", (session['id'], session['org_id']))
+    tasks = cur.fetchall()
+    cur.close()
+
+    return render_template('tasks.html', tasks=tasks)
+
+
+
+
+    
+
+@app.route('/employees')
+def employees():
+    # Код для отображения employees.html
+    return render_template('employees.html')
+
+@app.route('/chat')
+def chat():
+    # Код для отображения chat.html
+    return render_template('chat.html')
 
 @app.route('/logout')
 def logout():
@@ -267,4 +318,5 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
+

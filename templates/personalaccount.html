@@ -42,11 +42,11 @@
             </div>
             <div class="global-set">
                 <div class="travelguide">
-                    <a href=""><span>Задачи</span></a>
+                    <a href="{{ url_for('personal_account') }}">Задачи</a>
                     <div class="separator"></div>
-                    <a href=""><span>Сотрудники</span></a>
+                    <a href="{{ url_for('employees') }}">Сотрудники</a>
                     <div class="separator"></div>
-                    <a href=""><span>Чат</span></a>
+                    <a href="{{ url_for('chat') }}">Чат</a>
                     <div class="separator"></div>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                         <form id="changeForm" action="{{ url_for('create_organization') }}" method="post">
                             <div class="org">
                                 
-                                <span for="name">Название организации</span>
+                                <span for="name">Н��звание организации</span>
                             </div>
                             <input type="text" name="org_name" placeholder="Название" required>
                             <input type="text" name="org_desc" placeholder="Описание" required>

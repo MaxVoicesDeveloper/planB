@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/employerworkarea.css')}}">
+</head>
+
+<body>
+    <div class="global-container">
+        <div class="modal-window setting">
+            <div class="form-setting">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close-setting">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                                <label for="profilePictureInput">
+                                    <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
+                                    <span>Change Image</span>
+                                </label>
+                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
+                                <input type="text" name="name" placeholder="Имя" required>
+                                <button type="submit">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+                <div class="travelguide">
+                    <a href="{{ url_for('personal_account') }}">Задачи</a>
+                    <div class="separator"></div>
+                    <a href="{{ url_for('employees') }}">Сотрудники</a>
+                    <div class="separator"></div>
+                    <a href="{{ url_for('chat') }}">Чат</a>
+                    <div class="separator"></div>
+                </div>
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="task">
+                <div class="header">
+                    <span>OrganizationName</span>
+                    <button>Добавить сотрудника</button>
+                </div>
+                <div class="zag">
+                    <span>Сотрудники</span>
+                </div>
+                <div class="main">
+    
+                    <div class="employee-card">
+                        <div class="FIO">
+                            <span class="name">Голосов</span>
+                            <span class="lastname">Максим Евгеньевич</span>
+                            <div class="separator"></div>
+                        </div>
+                        <div class="avatar">
+                            <img src="{{url_for('static', filename='../../static/img/icon/invite.png')}}" alt="Подключи через флас (измени альт если заметишь)">
+                        </div>
+                        <div class="description">
+                            <div class="separator"></div>
+                            <span class="profession">Программист</span>
+                            <div class="separator-f"></div>
+                            <span class="email-login">
+                                <p>maksslesh@gmail.com</p>
+                                <p>MaxVoices</p>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="employee-card">
+                        <div class="FIO">
+                            <span class="name">Голосов</span>
+                            <span class="lastname">Максим Евгеньевич</span>
+                            <div class="separator"></div>
+                        </div>
+                        <div class="avatar">
+                            <img src="{{url_for('static', filename='../../static/img/icon/invite.png')}}" alt="Подключи через флас (измени альт если заметишь)">
+                        </div>
+                        <div class="description">
+                            <div class="separator"></div>
+                            <span class="profession">Программист</span>
+                            <div class="separator-f"></div>
+                            <span class="email-login">
+                                <p>maksslesh@gmail.com</p>
+                                <p>MaxVoices</p>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+    
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+
+</html>
