@@ -280,6 +280,7 @@ html, body{
 .open {
     opacity: 1;
     visibility: visible;
+    z-index: 100;
 }
 
 .task{
@@ -429,3 +430,4 @@ html, body{
     background: #FFFFFF;
     border-radius: 100px;
 }
+

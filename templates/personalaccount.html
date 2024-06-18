@@ -8,6 +8,45 @@
     <title>PlanB</title>
     <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/tasks.css')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <script>
+        function deleteTask(taskId) {
+            fetch('/delete-task/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest', // Это может потребоваться для обработки запроса как AJAX-запроса в Flask
+                },
+                credentials: 'same-origin' // Убедитесь, что сессионные данные отправляются с запросом
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Обновляем страницу после успешного удаления
+                } else {
+                    alert('Ошибка удаления задачи');
+                }
+            }).catch(error => {
+                console.error('Ошибка при удалении задачи:', error);
+            });
+            
+        };
+        </script>
+        <script>
+            function testDelete() {
+                fetch('/test-delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('Успех');
+                    } else {
+                        console.log('Ошибка');
+                    }
+                });
+            }
+            </script>
 </head>
 
 <body>
@@ -23,7 +62,7 @@
                 </div>
                 <div class="form-elements">
                     <div class="form">
-                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                        <form id="changeForm" action="personalaccount" method="post" enctype="multipart/form-data">
                                 <label for="profilePictureInput">
                                     <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
                                     <span>Change Image</span>
@@ -36,13 +75,35 @@
                 </div>
             </div>
         </div>
+        <div class="modal-window add-task">
+            <div class="form-add-task">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close-add-task">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form-task">
+                        <form action="/add-task" method="post">
+                            <input type="hidden" name="org_name" value="{{ session['org_name'] }}">
+                            <input type="text" name="title" placeholder="Title" required>
+                            <textarea name="description" placeholder="Description" required></textarea>
+                            <input type="date" name="deadline" required>
+                            <button type="submit">Добавить задачу</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="left-menu">
             <div class="logo">
                 <span>Plan <font>B</font></span>
             </div>
             <div class="global-set">
                 <div class="travelguide">
-                    <a href="{{ url_for('personal_account') }}">Задачи</a>
+                    <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Задачи</a>
                     <div class="separator"></div>
                     <a href="{{ url_for('employees') }}">Сотрудники</a>
                     <div class="separator"></div>
@@ -71,33 +132,43 @@
             <div class="task">
                 <div class="header">
                     <span>{{ session['org_name'] }}</span>
+                    <button class="to-open-add-task">Добавить задачу</button>
                 </div>
                 <div class="zag">
                     <span>Задачи</span>
                 </div>
                 <div class="main">
                     <div class="tasks">
-                        <div class="taskn">
-                            <div class="active_task">
-                                <div class="text_task_status">
-                                    <input type="checkbox" id="status">
-                                    <label for="status">Задача</label>
+                        {% for task in tasks %}
+                            <div class="task_global">
+                                <div class="task_del">
+                                    <div class="taskn">
+                                        <div class="text_task_status">
+                                            <input type="checkbox">
+                                            <label>{{ task.title }} - {{ task.date_deadline.strftime('%Y-%m-%d') }}</label>
+                                        </div>
+                                        <div class="down">
+                                            <img src="{{url_for('static', filename='../../static/img/icon/down.png')}}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="delete_task">
+                                        <a href="#" onclick="deleteTask({{ task.id }})"><img src="{{url_for('static', filename='../../static/img/icon/delete.png')}}" alt=""></a>
+                                        
+                                    </div>
                                 </div>
-                                <div class="down">
-                                    <img src="{{url_for('static', filename='../../static/img/icon/down.png')}}" alt="">
+                                <div class="desc_task">
+                                    <p>{{ task.desc_text }}</p>
                                 </div>
                             </div>
-                            <div class="delete_task">
-                                <img src="{{url_for('static', filename='../../static/img/icon/delete.png')}}" alt="">
-                            </div>
-                        </div>
+                            {% endfor %}
+                    </div>
                     </div>
                 </div>
             </div>
     
         </div>
     </div>
-
+    <script src="{{ url_for('static', filename='js/task.js') }}"></script>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
@@ -158,7 +229,7 @@
                         <form id="changeForm" action="{{ url_for('create_organization') }}" method="post">
                             <div class="org">
                                 
-                                <span for="name">Н��звание организации</span>
+                                <span for="name">Название организации</span>
                             </div>
                             <input type="text" name="org_name" placeholder="Название" required>
                             <input type="text" name="org_desc" placeholder="Описание" required>
@@ -205,6 +276,7 @@
             {% endif %}
         </div>
     </div>
+
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
 </body>
 

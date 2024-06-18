@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash, abort
 from flask_mysqldb import MySQL
-#from werkzeug.security import generate_password_hash, check_password_hash 
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 UPLOAD_FOLDER = 'static/img/resources'
 app = Flask(__name__)
@@ -12,6 +16,7 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'Maxonbd15)'
 app.config['MYSQL_DB'] = 'PlanBApp'
+
 mysql = MySQL(app)
 
 #################################################
@@ -174,6 +179,30 @@ def work():
     if request.method == 'GET':
         return render_template('work.html')
 
+@app.route('/add-task', methods=['POST'])
+def add_task():
+    title = request.form.get('title')
+    description = request.form.get('description')
+    deadline = request.form.get('deadline')
+    org_name = request.form.get('org_name')
+
+    if not title or not description or not deadline or not org_name:
+        flash('Please fill out all fields.')
+        return redirect(request.referrer)
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id FROM t_organization WHERE org_name = %s", (org_name,))
+    org_id = cur.fetchone()
+
+    if not org_id:
+        flash('Organization not found.')
+        return redirect(request.referrer)
+
+    cur.execute("INSERT INTO t_tasks (title, desc_text, date_deadline, id_fk) VALUES (%s, %s, %s, %s)",
+            (title, description, deadline, org_id[0]))
+    mysql.connection.commit()
+    flash('Task added successfully.')
+    return redirect(f'/personalaccount/{org_name}')
 
 
 @app.route('/create_organization', methods=['POST'])
@@ -234,9 +263,13 @@ def personal_account_org(org_name):
     
     if session['org_name'] is None:
         return redirect(url_for('personal_account'))
-    
-    if request.method == 'GET':
-        return render_template('personalaccount.html')
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM t_tasks WHERE id_fk = (SELECT id FROM t_organization WHERE org_name = %s)", (org_name,))
+    rows = cur.fetchall()
+    tasks = [{'id': row[0], 'title': row[1], 'desc_text': row[2], 'date_deadline': row[3]} for row in rows]
+    cur.execute("SELECT * FROM t_tasks WHERE id_fk = (SELECT id FROM t_organization WHERE org_name = %s)", (org_name,))
+    return render_template('personalaccount.html', tasks=tasks)
     
 @app.route('/work/<org_name>', methods=['GET', 'POST'])
 def work_org(org_name):
@@ -246,49 +279,20 @@ def work_org(org_name):
     if session['org_name'] is None:
         return redirect(url_for('personal_account'))
     
-    if request.method == 'GET':
-        return render_template('work.html')
-    
 
+@app.route('/test-delete', methods=['POST'])
+def test_delete():
+    return 'OK', 200
 
-@app.route('/personalaccount/add_task', methods=['POST'])
-def add_task():
-    if 'loggedin' not in session:
-        return redirect(url_for('home'))
-
-    if 'org_name' not in session:
-        return redirect(url_for('personal_account'))
-
-    task_title = request.form.get('task_title')
-    task_desc = request.form.get('task_desc')
-    task_deadline = request.form.get('task_deadline')
-
-    cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO t_tasks (title, desc_text, date_deadline, id_executor, id_status) VALUES (%s, %s, %s, %s, %s)",
-                (task_title, task_desc, task_deadline, session['id'], 1))  # 1 - NEW status
-    task_id = cur.lastrowid
-    cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (session['org_id'], session['id']))
-    mysql.connection.commit()
-    cur.close()
-
-    flash('Task added successfully.')
-    return redirect(url_for('personal_account'))
-
-
-@app.route('/personalaccount/tasks', methods=['GET'])
-def get_tasks():
-    if 'loggedin' not in session:
-        return redirect(url_for('home'))
-
-    if 'org_name' not in session:
-        return redirect(url_for('personal_account'))
-
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM t_tasks WHERE id_executor = %s AND id_org = %s", (session['id'], session['org_id']))
-    tasks = cur.fetchall()
-    cur.close()
-
-    return render_template('tasks.html', tasks=tasks)
+@app.route('/delete-task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM t_tasks WHERE id = %s", (task_id,))
+        mysql.connection.commit()
+        return 'OK', 200
+    else:
+        return 'Error: Invalid request', 400
 
 
 

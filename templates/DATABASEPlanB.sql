@@ -91,3 +91,10 @@ CREATE TABLE `t_organization` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+                            {% for task in tasks %}
+                            <div class="task-item">
+                                <h3>{{ task.title }}</h3>
+                                <p>{{ task.desc_text }}</p>
+                                <p>Deadline: {{ task.date_deadline.strftime('%Y-%m-%d') }}</p>
+                            </div>
+                            {% endfor %}

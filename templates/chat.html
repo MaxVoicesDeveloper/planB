@@ -16,7 +16,7 @@
             </div>
             <div class="global-set">
                 <div class="travelguide">
-                    <a href="{{ url_for('personal_account') }}">Задачи</a>
+                    <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Задачи</a>
                     <div class="separator"></div>
                     <a href="{{ url_for('employees') }}">Сотрудники</a>
                     <div class="separator"></div>
