@@ -75,7 +75,11 @@
                     <span>Сотрудники</span>
                 </div>
                 <div class="main">
-    
+                    <!-- Добавьте это в файл employees.html -->
+<form action="{{ url_for('send_invitation') }}" method="post">
+    <input type="text" name="employee_login" placeholder="Логин работника" required>
+    <button type="submit">Отправить приглашение</button>
+</form>
                     <div class="employee-card">
                         <div class="FIO">
                             <span class="name">Голосов</span>

@@ -91,10 +91,16 @@ CREATE TABLE `t_organization` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-                            {% for task in tasks %}
-                            <div class="task-item">
-                                <h3>{{ task.title }}</h3>
-                                <p>{{ task.desc_text }}</p>
-                                <p>Deadline: {{ task.date_deadline.strftime('%Y-%m-%d') }}</p>
-                            </div>
-                            {% endfor %}
+
+CREATE TABLE `t_invitations` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `from_user_id` bigint NOT NULL, -- ID работодателя
+  `to_user_id` bigint NOT NULL, -- ID работника
+  `organization_id` bigint NOT NULL, -- ID организации
+  `status` enum('pending', 'accepted', 'declined') NOT NULL DEFAULT 'pending', -- Статус заявки
+  `date_sent` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Дата отправки
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`from_user_id`) REFERENCES `t_users`(`id`),
+  FOREIGN KEY (`to_user_id`) REFERENCES `t_users`(`id`),
+  FOREIGN KEY (`organization_id`) REFERENCES `t_organization`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

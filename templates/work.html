@@ -1,3 +1,163 @@
+{% if session['org_name'] %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/tasks.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <script>
+        function deleteTask(taskId) {
+            fetch('/delete-task/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest', // Это может потребоваться для обработки запроса как AJAX-запроса в Flask
+                },
+                credentials: 'same-origin' // Убедитесь, что сессионные данные отправляются с запросом
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Обновляем страницу после успешного удаления
+                } else {
+                    alert('Ошибка удаления задачи');
+                }
+            }).catch(error => {
+                console.error('Ошибка при удалении задачи:', error);
+            });
+            
+        };
+        </script>
+        <script>
+            function testDelete() {
+                fetch('/test-delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('Успех');
+                    } else {
+                        console.log('Ошибка');
+                    }
+                });
+            }
+        window.onload = function() {
+        if (window.location.pathname === '/work/<org_name>') { // Убедитесь, что путь соответствует вашему маршруту
+            location.reload();
+        }
+        console.log("{{ session['org_name'] }}"); // Убедитесь, что это работает в шаблоне
+    }
+
+            </script>
+            
+</head>
+
+<body>
+    <div class="global-container">
+        <div class="modal-window setting">
+            <div class="form-setting">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close-setting">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <form id="changeForm" action="personalaccount" method="post" enctype="multipart/form-data">
+                                <label for="profilePictureInput">
+                                    <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
+                                    <span>Change Image</span>
+                                </label>
+                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
+                                <input type="text" name="name" placeholder="Имя" required>
+                                <button type="submit">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+                <div class="travelguide">
+                    <a href="{{ url_for('work')}}">Задачи</a>
+                    <div class="separator"></div>
+                    <a href="{{ url_for('employees') }}">Сотрудники</a>
+                    <div class="separator"></div>
+                    <a href="{{ url_for('chat') }}">Чат</a>
+                    <div class="separator"></div>
+                </div>
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="task">
+                <div class="header">
+                    <span>{{ session['org_name'] }}</span>
+                </div>
+                <div class="zag">
+                    <span>Задачи</span>
+                </div>
+                <div class="main">
+                    <div class="tasks">
+                        {% for task in tasks %}
+                            <div class="task_global">
+                                <div class="task_del">
+                                    <div class="taskn">
+                                        <div class="text_task_status">
+                                            <input type="checkbox">
+                                            <label>{{ task.title }} - {{ task.date_deadline.strftime('%Y-%m-%d') }}</label>
+                                        </div>
+                                        <div class="down">
+                                            <img src="{{url_for('static', filename='../../static/img/icon/down.png')}}" alt="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="desc_task">
+                                    <p>{{ task.desc_text }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/task.js') }}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+
+</html>
+{% else %}
+{% if invitations %}
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -25,13 +185,15 @@
                 <div class="form-elements">
                     <div class="form">
                         <form id="changeForm" action="" method="post" enctype="multipart/form-data">
-                                <label for="profilePictureInput">
-                                    <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture" class="profile-image">
-                                    <span>Change Image</span>
-                                </label>
-                                <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;" onchange="loadFile(event)">
-                                <input type="text" name="name" placeholder="Имя" required>
-                                <button type="submit">Сохранить</button>
+                            <label for="profilePictureInput">
+                                <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture"
+                                    class="profile-image">
+                                <span>Change Image</span>
+                            </label>
+                            <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;"
+                                onchange="loadFile(event)">
+                            <input type="text" name="name" placeholder="Имя" required>
+                            <button type="submit">Сохранить</button>
                         </form>
                     </div>
                 </div>
@@ -59,20 +221,206 @@
                     </div>
                 </div>
                 <div class="setting_account">
-                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
-                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}"
+                            alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}"
+                            alt=""></a>
                 </div>
             </div>
         </div>
         <div class="task">
-            {% if not session['org_name'] %}
-            <img src="{{url_for('static', filename='img/icon/invite.png')}}" alt="">
-            <h2>Вы ожидаете приглашения от работодателя.</h2>
-            <p>Пожалуйста, ожидайте.</p>
-            {% endif %}
+            <div class="invitations">
+                <h2>Приглашения:</h2>
+                {% for invitation in invitations %}
+                <div class="invitation">
+                    <p>Приглашение от {{ invitation[6]}}</p>
+                    <button onclick="acceptInvitation({{ invitation[0] }})">Принять</button>
+                    <button onclick="declineInvitation({{ invitation[0] }})">Отклонить</button>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
-</body>
 
+
+        <script>
+    function acceptInvitation(invitationId) {
+    console.log(invitationId); // Для отладки
+    fetch(`/accept_invitation/${invitationId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json()) // Убедитесь, что ответ действительно JSON
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Ошибка при принятии заявки');
+        }
+    })
+    .catch(error => console.error('Ошибка при принятии заявки:', error));
+}
+
+function declineInvitation(invitationId) {
+    console.log(invitationId); // Для отладки
+    fetch(`/decline_invitation/${invitationId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Ошибка при отклонении заявки');
+        }
+    })
+    .catch(error => console.error('Ошибка при отклонении заявки:', error));
+}
+        </script>
+        <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+        <script>
+            window.onload = function() {
+                if (!window.location.search.includes('org_name')) {
+                    window.location.href = window.location.pathname + '?org_name={{ session['org_name'] }} ;
+            }
+        }
+        </script>
+</body>
+{% else %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+</head>
+
+<body>
+    <div class="container">
+
+
+
+        <div class="modal-window setting">
+            <div class="form-setting">
+                <div class="top-elements">
+                    <span>Plan <font>B</font></span>
+                    <div class="to-close-setting">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+                <div class="form-elements">
+                    <div class="form">
+                        <form id="changeForm" action="" method="post" enctype="multipart/form-data">
+                            <label for="profilePictureInput">
+                                <img src="{{url_for('static', filename='img/icon/zaglimg.png')}}" alt="Profile Picture"
+                                    class="profile-image">
+                                <span>Change Image</span>
+                            </label>
+                            <input type="file" id="profilePictureInput" name="profilePicture" style="display:none;"
+                                onchange="loadFile(event)">
+                            <input type="text" name="name" placeholder="Имя" required>
+                            <button type="submit">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}"
+                            alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}"
+                            alt=""></a>
+                </div>
+            </div>
+        </div>
+        <div class="task">
+            <p>У вас нет приглашений.</p>
+        </div>
+
+
+        <script>
+    function acceptInvitation(invitationId) {
+    console.log(invitationId); // Для отладки
+    fetch(`/accept_invitation/${invitationId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json()) // Убедитесь, что ответ действительно JSON
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Ошибка при принятии заявки');
+        }
+    })
+    .catch(error => console.error('Ошибка при принятии заявки:', error));
+}
+
+function declineInvitation(invitationId) {
+    console.log(invitationId); // Для отладки
+    fetch(`/decline_invitation/${invitationId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Ошибка при отклонении заявки');
+        }
+    })
+    .catch(error => console.error('Ошибка при отклонении заявки:', error));
+}
+        </script>
+        <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+{% endif %}
+{% endif %}
 </html>
