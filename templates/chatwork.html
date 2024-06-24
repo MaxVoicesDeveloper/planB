@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanB</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/employerworkarea.css')}}">
+</head>
+
+<body>
+    <div class="global-container">
+        <div class="left-menu">
+            <div class="logo">
+                <span>Plan <font>B</font></span>
+            </div>
+            <div class="global-set">
+                <div class="travelguide">
+                    <a href="/work/{{ session['org_name'] }}">Задачи</a>
+                    <div class="separator"></div>
+                    <a href="/employeeswork">Сотрудники</a>
+                    <div class="separator"></div>
+                    <a href="/chatwork">Чат</a>
+                    <div class="separator"></div>
+                </div>
+            </div>
+            <div class="account">
+                <div class="account_info">
+                    <img src="{{url_for('static', filename='img/icon/account.png')}}" alt="">
+                    <div class="info_name">
+                        {% if session['loggedin'] %}
+                        <p>{{ session['login'] }}</p>
+                        <p>{{ session['account_type_name'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="setting_account">
+                    <button class="to-open-setting"><img src="{{url_for('static', filename='img/icon/settings.png')}}" alt=""></button>
+                    <a href="{{ url_for('logout') }}"><img src="{{url_for('static', filename='img/icon/logout.png')}}" alt=""></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
+</body>
+
+</html>

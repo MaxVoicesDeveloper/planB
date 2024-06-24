@@ -89,11 +89,11 @@
             </div>
             <div class="global-set">
                 <div class="travelguide">
-                    <a href="{{ url_for('work')}}">Задачи</a>
+                    <a href="/work/{{ session['org_name'] }}">Задачи</a>
                     <div class="separator"></div>
-                    <a href="{{ url_for('employees') }}">Сотрудники</a>
+                    <a href="/employeeswork">Сотрудники</a>
                     <div class="separator"></div>
-                    <a href="{{ url_for('chat') }}">Чат</a>
+                    <a href="/chatwork">Чат</a>
                     <div class="separator"></div>
                 </div>
             </div>
@@ -241,28 +241,38 @@
             </div>
         </div>
 
-
+        <script>
+            window.onload = function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orgName = urlParams.get('org_name');
+                if (orgName) {
+                    // Используйте orgName для обновления части страницы или выполните перенаправление
+                    console.log(orgName); // Для отладки
+                    // Здесь можно добавить логику для обновления страницы или перенаправления
+                    window.location.href = `/work/${orgName}`; // Перенаправление на основе orgName
+                }
+            }
+            </script>
         <script>
     function acceptInvitation(invitationId) {
-    console.log(invitationId); // Для отладки
-    fetch(`/accept_invitation/${invitationId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        credentials: 'same-origin'
-    })
-    .then(response => response.json()) // Убедитесь, что ответ действительно JSON
-    .then(data => {
-        if (data.status === 'success') {
-            window.location.reload();
-        } else {
-            alert(data.message || 'Ошибка при принятии заявки');
-        }
-    })
-    .catch(error => console.error('Ошибка при принятии заявки:', error));
-}
+        fetch('/accept_invitation/' + invitationId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        }).then(response => response.json()).then(data => {
+            if (data.status === 'success') {
+                window.location.href = data.redirect_url;
+            } else {
+                alert('Ошибка принятия заявки');
+            }
+        }).catch(error => {
+            console.error('Ошибка при принятии заявки:', error);
+        });
+    }
+
 
 function declineInvitation(invitationId) {
     console.log(invitationId); // Для отладки

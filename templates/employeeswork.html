@@ -8,16 +8,13 @@
     <link rel="stylesheet" href="{{url_for('static', filename='../../static/css/employerworkarea.css')}}">
 </head>
 
-
-
-
 <body>
     <div class="global-container">
         <div class="modal-window setting">
             <div class="form-setting">
                 <div class="top-elements">
                     <span>Plan <font>B</font></span>
-                    <div class="to-close-send">
+                    <div class="to-close-setting">
                         <div class="line"></div>
                         <div class="line"></div>
                     </div>
@@ -37,36 +34,17 @@
                 </div>
             </div>
         </div>
-        <div class="modal-window send">
-            <div class="form-send">
-                <div class="top-elements">
-                    <span>Plan <font>B</font></span>
-                    <div class="closesend">
-                        <div class="line"></div>
-                        <div class="line"></div>
-                    </div>
-                </div>
-                <div class="form-elements">
-                    <div class="form">
-                        <form action="{{ url_for('send_invitation') }}" method="post">
-                            <input type="text" name="employee_login" placeholder="Логин работника" required>
-                            <button type="submit" class="closesendbut">Отправить приглашение</button>
-                        </form>                        
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="left-menu">
             <div class="logo">
                 <span>Plan <font>B</font></span>
             </div>
             <div class="global-set">
                 <div class="travelguide">
-                    <a href="{{ url_for('personal_account_org', org_name=session['org_name']) }}">Задачи</a>
+                    <a href="/work/{{ session['org_name'] }}">Задачи</a>
                     <div class="separator"></div>
-                    <a href="{{ url_for('employees') }}">Сотрудники</a>
+                    <a href="/employeeswork">Сотрудники</a>
                     <div class="separator"></div>
-                    <a href="{{ url_for('chat') }}">Чат</a>
+                    <a href="/chatwork">Чат</a>
                     <div class="separator"></div>
                 </div>
             </div>
@@ -91,23 +69,11 @@
             <div class="task">
                 <div class="header">
                     <span>{{ session['org_name'] }}</span>
-                    <button class="to-open-send">Добавить сотрудника</button>
                 </div>
                 <div class="zag">
                     <span>Сотрудники</span>
                 </div>
                 <div class="main">
-                    <!-- Добавьте это в файл employees.html -->
-                    <div id="edit-form" style="display: none;">
-                        <form action="{{ url_for('edit_employee') }}" method="post">
-                            <input type="hidden" id="edit-login" name="login">
-                            <label for="edit-name">Имя:</label>
-                            <input type="text" id="edit-name" name="name" required>
-                            <label for="edit-email">Email:</label>
-                            <input type="email" id="edit-email" name="email" required>
-                            <button type="submit">Сохранить изменения</button>
-                        </form>
-                    </div>
                     {% for employee in employees %}
                     <div class="employee-card">
                         <div class="FIO">
@@ -127,8 +93,6 @@
                                 <p>{{ employee[4] }}</p>
                             </span>
                         </div>
-                        <!-- Добавляем кнопку для редактирования -->
-                        <button class="edit-button" onclick="openEditForm('{{ employee[4] }}', '{{ employee[0] }} {{ employee[1] }} {{ employee[2] }}', '{{ employee[3] }}')">Редактировать</button>
                     </div>
                     {% endfor %}
 
@@ -137,7 +101,6 @@
     
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/send.js') }}"></script>
     <script src="{{ url_for('static', filename='js/personal.js') }}"></script>
 </body>
 

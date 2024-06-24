@@ -165,13 +165,29 @@ def register():
         
 @app.route('/personalaccount', methods=['GET', 'POST'])
 def personal_account():
-    if 'loggedin' in session:
-        if request.method == 'GET':
-            return render_template('personalaccount.html')  # Передаем функцию в шаблон
-    else:
+    if 'loggedin' not in session:
         flash('You must be logged in to view that page.')
         return redirect(url_for('home'))
-    
+
+    cur = mysql.connection.cursor()
+
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        profession = request.form.get('profession')
+
+        if not user_id or not profession:
+            flash('Пожалуйста, заполните все поля')
+            return abort(400)
+
+        cur.execute("UPDATE t_users SET profession = %s WHERE id = %s", (profession, user_id))
+        mysql.connection.commit()
+        flash('Profession assigned successfully.')
+
+    cur.execute("SELECT id, last_name, first_name, second_name, email, login, profession FROM t_users WHERE account_type = 'employee'")
+    employees = cur.fetchall()
+    cur.close()
+
+    return render_template('personalaccount.html', employees=employees)
 
 def get_organization_by_user_id(user_id):
     cur = mysql.connection.cursor()
@@ -202,12 +218,15 @@ def add_task():
     description = request.form.get('description')
     deadline = request.form.get('deadline')
     org_name = request.form.get('org_name')
+    status_code = 'NEW'  # Или получите это значение из формы или установите по умолчанию
 
     if not title or not description or not deadline or not org_name:
         flash('Please fill out all fields.')
         return redirect(request.referrer)
 
     cur = mysql.connection.cursor()
+
+    # Получаем id организации
     cur.execute("SELECT id FROM t_organization WHERE org_name = %s", (org_name,))
     org_id = cur.fetchone()
 
@@ -215,8 +234,17 @@ def add_task():
         flash('Organization not found.')
         return redirect(request.referrer)
 
-    cur.execute("INSERT INTO t_tasks (title, desc_text, date_deadline, id_fk) VALUES (%s, %s, %s, %s)",
-            (title, description, deadline, org_id[0]))
+    # Получаем id_status по коду статуса
+    cur.execute("SELECT id FROM t_task_statuses WHERE status_code = %s", (status_code,))
+    status_id = cur.fetchone()
+
+    if not status_id:
+        flash(f'Status {status_code} not found in t_task_statuses.')
+        return redirect(request.referrer)
+
+    # Вставляем задачу с указанным id_status
+    cur.execute("INSERT INTO t_tasks (title, desc_text, date_deadline, id_fk, id_status) VALUES (%s, %s, %s, %s, %s)",
+                (title, description, deadline, org_id[0], status_id[0]))
     mysql.connection.commit()
     flash('Task added successfully.')
     return redirect(f'/personalaccount/{org_name}')
@@ -289,9 +317,8 @@ def work_org(org_name):
     cur.execute("SELECT * FROM t_tasks WHERE id_fk = (SELECT id FROM t_organization WHERE org_name = %s)", (org_name,))
     rows = cur.fetchall()
     tasks = [{'id': row[0], 'title': row[1], 'desc_text': row[2], 'date_deadline': row[3]} for row in rows]
-    cur.execute("SELECT * FROM t_tasks WHERE id_fk = (SELECT id FROM t_organization WHERE org_name = %s)", (org_name,))
-    
     return render_template('work.html', tasks=tasks, organization=organization)
+
 
 @app.route('/test-delete', methods=['POST'])
 def test_delete():
@@ -351,7 +378,7 @@ def accept_invitation(invitation_id):
 
     # Обновляем данные пользователя, добавляем его в организацию
     cur.execute("UPDATE t_users SET id_org = %s WHERE id = %s", (invitation[3], session['id']))
-    cur.execute("UPDATE t_invitations SET status = 'accepted' WHERE id = %s", (invitation[0],))
+    cur.execute("UPDATE t_invitations SET status = 'accepted' WHERE id = %s", (invitation_id,))
     mysql.connection.commit()
 
     # Получаем название организации из базы данных
@@ -363,11 +390,10 @@ def accept_invitation(invitation_id):
 
     # Проверяем, что у пользователя есть роль, которая соответствует странице, на которую мы хотим перенаправить
     if session['account_type'] == 'employee':
-        # Если пользователь - работник, перенаправляем на страницу работы с учетом организации
-        return redirect(url_for('work', org_name=org_name))
+        return jsonify({'status': 'success', 'redirect_url': url_for('work_org', org_name=org_name)}), 200
     else:
-        # Если пользователь не является работником, перенаправляем на другую страницу (например, на личный кабинет)
-        return redirect(url_for('personal_account'))
+        return jsonify({'status': 'success', 'redirect_url': url_for('personal_account_org', org_name=org_name)}), 200
+
 
 @app.route('/decline_invitation/<int:invitation_id>')
 def decline_invitation(invitation_id):
@@ -391,15 +417,107 @@ def get_invitations(user_id):
     invitations = cur.fetchall()
     return invitations
 
-@app.route('/employees')
+@app.route('/employees', methods=['GET'])
 def employees():
-    # Код для отображения employees.html
-    return render_template('employees.html')
+    if 'loggedin' not in session:
+        flash('You must be logged in to view that page.')
+        return redirect(url_for('home'))
+
+    cur = mysql.connection.cursor()
+
+    # Fetch organization ID using org_name from session
+    org_name = session.get('org_name', None)
+    if not org_name:
+        flash('Organization name not found in session.')
+        return redirect(url_for('home'))
+
+    cur.execute("SELECT id FROM t_organization WHERE org_name = %s", (org_name,))
+    org_id = cur.fetchone()
+
+    if not org_id:
+        flash('Organization not found.')
+        return redirect(url_for('home'))
+
+    # Fetch employees of the current organization
+    cur.execute("SELECT last_name, first_name, second_name, email, login FROM t_users WHERE id_org = %s", (org_id[0],))
+    employees = cur.fetchall()
+    cur.close()
+
+    return render_template('employees.html', employees=employees)
+
+
+@app.route('/edit_employee', methods=['POST'])
+def edit_employee():
+    if 'loggedin' not in session:
+        flash('Вы должны быть авторизованы для просмотра этой страницы.')
+        return redirect(url_for('home'))
+
+    login = request.form.get('login')
+    name = request.form.get('name')
+    email = request.form.get('email')
+
+    if not login or not name or not email:
+        flash('Пожалуйста, заполните все поля.')
+        return redirect(url_for('employees'))
+
+    # Разделение ФИО на составляющие
+    name_parts = name.split(' ')
+    if len(name_parts) == 3:
+        last_name, first_name, second_name = name_parts
+    elif len(name_parts) == 2:
+        last_name, first_name = name_parts
+        second_name = ''
+    else:
+        flash('Неправильный формат имени.')
+        return redirect(url_for('employees'))
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE t_users 
+        SET last_name = %s, first_name = %s, second_name = %s, email = %s
+        WHERE login = %s
+        """, (last_name, first_name, second_name, email, login))
+    mysql.connection.commit()
+    cur.close()
+
+    flash('Данные о работнике обновлены.')
+    return redirect(url_for('employees'))
+
+
+@app.route('/employeeswork', methods=['GET'])
+def employeeswork():
+    if 'loggedin' not in session:
+        flash('You must be logged in to view that page.')
+        return redirect(url_for('home'))
+
+    cur = mysql.connection.cursor()
+
+    # Fetch organization ID using org_name from session
+    org_name = session.get('org_name', None)
+    if not org_name:
+        flash('Organization name not found in session.')
+        return redirect(url_for('home'))
+
+    cur.execute("SELECT id FROM t_organization WHERE org_name = %s", (org_name,))
+    org_id = cur.fetchone()
+
+    if not org_id:
+        flash('Organization not found.')
+        return redirect(url_for('home'))
+
+    # Fetch employees of the current organization
+    cur.execute("SELECT last_name, first_name, second_name, email, login FROM t_users WHERE id_org = %s", (org_id[0],))
+    employees = cur.fetchall()
+    cur.close()
+    return render_template('employeeswork.html', employees=employees)
 
 @app.route('/chat')
 def chat():
     # Код для отображения chat.html
     return render_template('chat.html')
+
+
+
 
 @app.route('/logout')
 def logout():

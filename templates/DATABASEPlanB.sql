@@ -104,3 +104,8 @@ CREATE TABLE `t_invitations` (
   FOREIGN KEY (`to_user_id`) REFERENCES `t_users`(`id`),
   FOREIGN KEY (`organization_id`) REFERENCES `t_organization`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+ALTER TABLE t_users ADD COLUMN profession VARCHAR(255) DEFAULT 'Unknown';
+
+ALTER TABLE t_tasks MODIFY COLUMN id_status bigint NOT NULL DEFAULT 1;

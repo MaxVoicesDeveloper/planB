@@ -132,6 +132,7 @@ html, body{
     border: solid #ffffff 3px;
     border-radius: 100%;
     cursor: pointer;
+    z-index: 100;
 }
 
 .but-close div {
@@ -189,6 +190,23 @@ html, body{
 }
 
 .form-setting form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.form-send {
+    display: grid;
+    grid-template-rows: 10% 90%;
+    width: 700px;
+    height: 454px;
+    background: #2C2C2C;
+    border-radius: 20px;
+}
+
+.form-send form{
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -431,3 +449,30 @@ html, body{
     border-radius: 100px;
 }
 
+.closesend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    border: solid #ffffff 3px;
+    border-radius: 100%;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.closesend div {
+    position: absolute;
+    background: #ffffff;
+    height: 3px;
+    width: 20px;
+    border-radius: 20px;
+}
+
+.closesend div:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.closesend div:nth-child(2) {
+    transform: rotate(-45deg);
+}
